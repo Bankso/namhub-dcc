@@ -146,7 +146,7 @@ def render_schema_properties(schema_uri: str, upsert_key: str):
 
     st.dataframe(
         rows,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -481,7 +481,7 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
     st.subheader("Results")
     st.dataframe(
         results,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
