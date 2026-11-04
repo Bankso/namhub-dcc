@@ -117,7 +117,7 @@ def run(args):
             log.info("Created folder %r (%s)", folder_name, folder.id)
             existing_names.add(folder_name)
             created += 1
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - log and continue; one failure must not abort the batch
             log.error("Failed to create folder %r: %s", folder_name, e)
             failed += 1
 

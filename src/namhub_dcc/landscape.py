@@ -7,7 +7,6 @@ wraps that call with NAMHub's conventions so a Landscape Task can be created
 in any project/folder with a single function call.
 """
 
-from typing import Optional, Tuple
 
 from synapseclient import Synapse
 from synapseclient.extensions.curator import create_record_based_metadata_task
@@ -25,14 +24,14 @@ def create_landscape_task(
     folder_id: str,
     pi_name: str,
     record_set_name: str = DEFAULT_RECORD_SET_NAME,
-    record_set_description: Optional[str] = None,
+    record_set_description: str | None = None,
     curation_task_name: str = DEFAULT_CURATION_TASK_NAME,
     instructions: str = DEFAULT_INSTRUCTIONS,
     schema_uri: str = DEFAULT_SCHEMA_URI,
     upsert_key: str = DEFAULT_UPSERT_KEY,
     *,
-    synapse_client: Optional[Synapse] = None,
-) -> Tuple[RecordSet, CurationTask, Grid]:
+    synapse_client: Synapse | None = None,
+) -> tuple[RecordSet, CurationTask, Grid]:
     """Create a NAMHub Landscape Task in the given Synapse project/folder.
 
     Arguments:

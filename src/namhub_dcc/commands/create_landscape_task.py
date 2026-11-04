@@ -87,7 +87,7 @@ def add_parser(subparsers):
 def run(args):
     syn = login(args.auth_token)
 
-    record_set, curation_task, grid = create_landscape_task(
+    record_set, curation_task, _grid = create_landscape_task(
         project_id=args.project_id,
         folder_id=args.folder_id,
         pi_name=args.pi_name,

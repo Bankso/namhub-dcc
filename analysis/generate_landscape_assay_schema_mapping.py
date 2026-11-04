@@ -26,7 +26,6 @@ Usage:
 
 import json
 import logging
-from typing import List, Optional
 
 import anthropic
 import pandas as pd
@@ -274,10 +273,10 @@ class NamedExtraction(BaseModel):
 
 
 class ExtractionList(BaseModel):
-    items: List[NamedExtraction]
+    items: list[NamedExtraction]
 
 
-def _parse_maybe_json_list(value) -> List[str]:
+def _parse_maybe_json_list(value) -> list[str]:
     """Landscape RecordSet cells are sometimes a bare string, sometimes a
     JSON-encoded array of strings (per the bound schema's array<string>
     properties, e.g. ContextofUse)."""
@@ -300,7 +299,7 @@ def _normalize_assay_name(name: str) -> str:
 
 
 def download_and_combine_record_sets(
-    record_set_ids: List[str], synapse_client: synapseclient.Synapse
+    record_set_ids: list[str], synapse_client: synapseclient.Synapse
 ) -> pd.DataFrame:
     frames = []
     for record_set_id in record_set_ids:
@@ -314,7 +313,7 @@ def download_and_combine_record_sets(
     return pd.concat(frames, ignore_index=True)
 
 
-def unique_values(df: pd.DataFrame, column: str) -> List[str]:
+def unique_values(df: pd.DataFrame, column: str) -> list[str]:
     values = set()
     for cell in df[column]:
         values.update(_parse_maybe_json_list(cell))
@@ -322,8 +321,8 @@ def unique_values(df: pd.DataFrame, column: str) -> List[str]:
 
 
 def extract_nam_names(
-    descriptions: List[str],
-    anthropic_client: Optional[anthropic.Anthropic] = None,
+    descriptions: list[str],
+    anthropic_client: anthropic.Anthropic | None = None,
     model: str = "claude-opus-4-8",
 ) -> dict:
     """Batch-extract a NAM/model-system name for each unique description in

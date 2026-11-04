@@ -1,11 +1,10 @@
 """Shared Synapse login helper used by every command."""
 
-from typing import Optional
 
 import synapseclient
 
 
-def login(auth_token: Optional[str] = None) -> synapseclient.Synapse:
+def login(auth_token: str | None = None) -> synapseclient.Synapse:
     """Log in to Synapse.
 
     Resolution order for credentials: an explicit ``auth_token``, then the
