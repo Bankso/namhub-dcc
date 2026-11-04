@@ -89,13 +89,17 @@ Returns a `(RecordSet, CurationTask, Grid)` tuple.
 
 ## Provenance
 
-Ported from an internal Streamlit GUI
-(`CURATOR_landscape_gui.py`) that created these one at a time through a form.
-That GUI's code default for `schema_uri` was `HTAN2Organization-scRNALevel1`
-(an unrelated HTAN scRNA-seq schema) — this was a bug, inconsistent with the
-GUI's own docstring/placeholder text. It was corrected here: `NAMhub-Landscape-1.0.0`
-is the schema whose properties actually match real Landscape Task RecordSets
-in Synapse.
+Ported from an internal Streamlit GUI (`CURATOR_landscape_gui.py`) that created
+these one at a time through a form. A Streamlit app that creates several tasks
+at once now lives in this repo as
+[`apps/landscape_task_gui.py`](../../apps/landscape_task_gui.py) and wraps the
+same `create_landscape_task` helper (see the Readme for how to run it).
+
+That original GUI's code default for `schema_uri` was
+`HTAN2Organization-scRNALevel1` (an unrelated HTAN scRNA-seq schema) — this was
+a bug, inconsistent with the GUI's own docstring/placeholder text. It was
+corrected here: `NAMhub-Landscape-1.0.0` is the schema whose properties
+actually match real Landscape Task RecordSets in Synapse.
 
 ## Source
 

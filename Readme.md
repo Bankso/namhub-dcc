@@ -68,6 +68,25 @@ tasks across many folders in a loop).
 
 ---
 
+## GUI
+
+A Streamlit app for creating several Landscape tasks at once from a form is
+included in `apps/landscape_task_gui.py`. It wraps the same
+`namhub_dcc.landscape.create_landscape_task` helper as the CLI command.
+
+```bash
+pip install -e ".[gui]"
+streamlit run apps/landscape_task_gui.py
+```
+
+Credentials are resolved the same way as the CLI: a personal access token
+entered in the app's sidebar, then the `SYNAPSE_AUTH_TOKEN` environment
+variable, then `~/.synapseConfig`. The app is intended for local use only; do
+not deploy it as a shared service, since it acts with the credentials of
+whoever is logged in.
+
+---
+
 ## Development
 
 Clone the repo and install it in editable mode:
