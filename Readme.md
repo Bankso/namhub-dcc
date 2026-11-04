@@ -37,6 +37,7 @@ can generate a personal access token from your Synapse account settings page
 | --- | --- |
 | [`create-folders-from-recordset`](https://sagebio-ada.github.io/namhub-dcc/commands/create-folders-from-recordset.html) | Create one Synapse Folder per row of a Synapse RecordSet. |
 | [`create-landscape-task`](https://sagebio-ada.github.io/namhub-dcc/commands/create-landscape-task.html) | Create a NAMHub Landscape Task (RecordSet + CurationTask + Grid) in a project folder. |
+| [`update-recordset-schema`](https://sagebio-ada.github.io/namhub-dcc/commands/update-recordset-schema.html) | Move existing RecordSets to a newer JSON schema version (adds missing columns, rebinds the schema). |
 
 Run `namhub-dcc --help` to list all commands, or `namhub-dcc <command> --help`
 for a command's options. See the docs linked above for full option tables,
@@ -66,13 +67,26 @@ Also available as a plain Python function,
 `namhub_dcc.landscape.create_landscape_task`, for scripting (e.g. creating
 tasks across many folders in a loop).
 
+### `update-recordset-schema`
+
+```bash
+namhub-dcc update-recordset-schema --record-set-id syn12345678 --dry-run
+namhub-dcc update-recordset-schema --record-set-id syn12345678
+```
+
+Moves RecordSets to the latest version of their bound schema (or `--schema-uri`),
+adding any missing columns as empty columns.
+
 ---
 
 ## GUI
 
 A Streamlit app for creating several Landscape tasks at once from a form is
 included in `apps/landscape_task_gui.py`. It wraps the same
-`namhub_dcc.landscape.create_landscape_task` helper as the CLI command.
+`namhub_dcc.landscape.create_landscape_task` helper as the CLI command. Its
+"Update RecordSet schema" tab previews and applies
+`namhub_dcc.recordset_schema.update_recordset_schema` to one or more existing
+RecordSets.
 
 ```bash
 pip install -e ".[gui]"
