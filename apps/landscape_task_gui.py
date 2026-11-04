@@ -19,6 +19,7 @@ from namhub_dcc.landscape import (
     DEFAULT_SCHEMA_URI,
     DEFAULT_UPSERT_KEY,
     create_landscape_task,
+    find_existing_task_entities,
     resolve_schema_uri,
 )
 
@@ -226,18 +227,32 @@ def remove_landscape(task_id: str):
     ]
 
 
-def effective_curation_task_name(task: dict) -> str:
+def _name_with_pi(name: str, default: str, pi_name: str) -> str:
     """
-    Curation task names must be unique within a project, so when the user
-    leaves the default name in place, make it unique by appending the PI name.
+    Append the PI name to a name left at its default, so tasks created with
+    the defaults get their own RecordSet and CurationTask.
     """
-    name = task["curation_task_name"].strip()
-    pi_name = task["pi_name"].strip()
+    name = name.strip()
+    pi_name = pi_name.strip()
 
-    if name == DEFAULT_CURATION_TASK_NAME and pi_name:
-        return f"{DEFAULT_CURATION_TASK_NAME} - {pi_name}"
+    if name == default and pi_name:
+        return f"{default} - {pi_name}"
 
     return name
+
+
+def effective_curation_task_name(task: dict) -> str:
+    """Curation task names must not already exist in the folder's project."""
+    return _name_with_pi(
+        task["curation_task_name"], DEFAULT_CURATION_TASK_NAME, task["pi_name"]
+    )
+
+
+def effective_record_set_name(task: dict) -> str:
+    """RecordSet names must not already exist in the folder."""
+    return _name_with_pi(
+        task["record_set_name"], DEFAULT_RECORD_SET_NAME, task["pi_name"]
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -271,8 +286,9 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 value=landscape["record_set_name"],
                 key=f"record_set_name_{task_id}",
                 help=(
-                    "An existing RecordSet with this name in the folder is "
-                    "reused and rebound to the schema."
+                    "Must not already exist in the folder. If left at the "
+                    f"default ({DEFAULT_RECORD_SET_NAME!r}), the PI name is "
+                    "appended automatically."
                 ),
             )
 
@@ -281,7 +297,7 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 value=landscape["curation_task_name"],
                 key=f"curation_task_name_{task_id}",
                 help=(
-                    "Must be unique within the batch. If left at the "
+                    "Must not already exist in the project. If left at the "
                     f"default ({DEFAULT_CURATION_TASK_NAME!r}), the PI name is "
                     "appended automatically."
                 ),
@@ -433,13 +449,13 @@ def validate_unique_curation_task_names(tasks: list[dict]) -> list[str]:
 def validate_unique_record_sets(tasks: list[dict]) -> list[str]:
     """
     Reject duplicate (folder_id, record_set_name) pairs within the batch, since
-    the later task would reuse and rebind the earlier task's RecordSet.
+    the later task would update the earlier task's RecordSet.
     """
     errors = []
     seen: dict[tuple[str, str], int] = {}
 
     for i, task in enumerate(tasks):
-        key = (task["folder_id"].strip(), task["record_set_name"].strip())
+        key = (task["folder_id"].strip(), effective_record_set_name(task))
 
         if not key[0] or not key[1]:
             continue
@@ -447,8 +463,8 @@ def validate_unique_record_sets(tasks: list[dict]) -> list[str]:
         if key in seen:
             errors.append(
                 f"Task {i + 1}: Record Set Name {key[1]!r} is already used by "
-                f"Task {seen[key] + 1} in folder {key[0]}. Use a different "
-                "folder or Record Set Name."
+                f"Task {seen[key] + 1} in folder {key[0]}. Each task needs its "
+                "own RecordSet."
             )
         else:
             seen[key] = i
@@ -474,6 +490,31 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
             st.write(f"- {error}")
         st.stop()
 
+    # The curator upserts by name, so an existing RecordSet or CurationTask
+    # would be updated instead of a new one being created.
+    with st.spinner("Checking Synapse for existing RecordSets and tasks..."):
+        for i, task in enumerate(st.session_state.landscapes):
+            try:
+                existing = find_existing_task_entities(
+                    task["folder_id"].strip(),
+                    effective_record_set_name(task),
+                    effective_curation_task_name(task),
+                    synapse_client=syn,
+                )
+            except (SynapseHTTPError, ValueError) as e:
+                existing = [f"Could not check folder {task['folder_id']}: {e}"]
+
+            all_errors.extend(f"Task {i + 1}: {problem}" for problem in existing)
+
+    if all_errors:
+        st.error(
+            "Each new task needs its own RecordSet and curation task. Rename or "
+            "move these before creating tasks:"
+        )
+        for error in all_errors:
+            st.write(f"- {error}")
+        st.stop()
+
     results = []
 
     with st.spinner("Creating Landscape metadata tasks..."):
@@ -488,7 +529,7 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
                 record_set, curation_task, _data_grid = create_landscape_task(
                     folder_id=folder_id,
                     pi_name=pi_name,
-                    record_set_name=task["record_set_name"].strip(),
+                    record_set_name=effective_record_set_name(task),
                     record_set_description=task["record_set_description"].strip()
                     or None,
                     curation_task_name=effective_curation_task_name(task),

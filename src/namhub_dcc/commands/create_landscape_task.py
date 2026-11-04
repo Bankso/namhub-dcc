@@ -44,7 +44,9 @@ def add_parser(subparsers):
     parser.add_argument(
         "--record-set-name",
         default=DEFAULT_RECORD_SET_NAME,
-        help=f"Name for the RecordSet. Default: {DEFAULT_RECORD_SET_NAME!r}.",
+        help="Name for the RecordSet. Must not already exist in the folder; "
+        "the command errors instead of updating it. "
+        f"Default: {DEFAULT_RECORD_SET_NAME!r}.",
     )
     parser.add_argument(
         "--record-set-description",
@@ -55,9 +57,9 @@ def add_parser(subparsers):
     parser.add_argument(
         "--curation-task-name",
         default=DEFAULT_CURATION_TASK_NAME,
-        help="Name for the CurationTask. Must be unique within the project, "
-        "otherwise a matching existing task will be updated instead of a "
-        f"new one being created. Default: {DEFAULT_CURATION_TASK_NAME!r}.",
+        help="Name for the CurationTask. Must not already exist in the "
+        "folder's project; the command errors instead of updating it. "
+        f"Default: {DEFAULT_CURATION_TASK_NAME!r}.",
     )
     parser.add_argument(
         "--instructions",
@@ -89,18 +91,23 @@ def add_parser(subparsers):
 def run(args):
     syn = login(args.auth_token)
 
-    record_set, curation_task, grid = create_landscape_task(
-        project_id=args.project_id,
-        folder_id=args.folder_id,
-        pi_name=args.pi_name,
-        record_set_name=args.record_set_name,
-        record_set_description=args.record_set_description,
-        curation_task_name=args.curation_task_name,
-        instructions=args.instructions,
-        schema_uri=args.schema_uri,
-        upsert_key=args.upsert_key,
-        synapse_client=syn,
-    )
+    try:
+        record_set, curation_task, grid = create_landscape_task(
+            project_id=args.project_id,
+            folder_id=args.folder_id,
+            pi_name=args.pi_name,
+            record_set_name=args.record_set_name,
+            record_set_description=args.record_set_description,
+            curation_task_name=args.curation_task_name,
+            instructions=args.instructions,
+            schema_uri=args.schema_uri,
+            upsert_key=args.upsert_key,
+            synapse_client=syn,
+        )
+    except ValueError as e:
+        # E.g. the RecordSet or CurationTask already exists, or a bad schema URI.
+        log.error("%s", e)
+        raise SystemExit(1) from None
 
     log.info("Created RecordSet %r (%s)", record_set.name, record_set.id)
     log.info(

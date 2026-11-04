@@ -27,9 +27,9 @@ namhub-dcc create-landscape-task \
 | `--project-id` | Yes | — | Synapse ID of the project the folder lives in. |
 | `--folder-id` | Yes | — | Synapse ID of the folder to create the Landscape Task RecordSet in. |
 | `--pi-name` | Yes | — | Name of the PI this Landscape Task is for. Used to build the default RecordSet description. |
-| `--record-set-name` | No | `Curation` | Name for the RecordSet. |
+| `--record-set-name` | No | `Curation` | Name for the RecordSet. Must not already exist in the folder — see [Behavior notes](#behavior-notes). |
 | `--record-set-description` | No | `Landscape task for <pi-name>` | Description for the RecordSet. |
-| `--curation-task-name` | No | `Landscape Task` | Name for the CurationTask. Must be unique within the project — see [Behavior notes](#behavior-notes). |
+| `--curation-task-name` | No | `Landscape Task` | Name for the CurationTask. Must not already exist in the project — see [Behavior notes](#behavior-notes). |
 | `--instructions` | No | `Please fill in each row with the dataset information.` | Instructions shown to the curator filling in the task. |
 | `--schema-uri` | No | `NAMhub-Landscape` | JSON schema URI to bind the RecordSet to. A URI without a version uses the latest registered version; pass e.g. `NAMhub-Landscape-3.0.0` to pin one. |
 | `--upsert-key` | No | `LandscapeId` | Column name that uniquely identifies rows for upsert. |
@@ -47,13 +47,13 @@ namhub-dcc create-landscape-task \
 
 ## Behavior notes
 
-- `--curation-task-name` acts as a unique key **per project**. Re-running the
-  command in the same project with the *same* curation task name updates the
-  existing task (and its RecordSet, matched by name + parent folder) rather
-  than creating a duplicate. Using a *different* name creates a brand-new,
-  separate CurationTask even if it targets the same folder.
-- The RecordSet name/parent pair is also how an existing RecordSet is
-  detected and updated in place, independent of the curation task name.
+- Every Landscape Task gets its **own** RecordSet and CurationTask. The
+  underlying curator call would otherwise update an existing RecordSet with
+  the same name in the folder, or an existing CurationTask with the same name
+  in the folder's project, so the command checks for both first and exits
+  with an error if either exists. Pick a different `--record-set-name` /
+  `--curation-task-name` to create another task in the same folder or
+  project.
 
 ## Python API
 
