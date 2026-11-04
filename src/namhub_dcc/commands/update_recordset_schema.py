@@ -5,6 +5,8 @@ are appended to each RecordSet as empty columns; nothing is removed.
 
 import logging
 
+from synapseclient.core.exceptions import SynapseError
+
 from namhub_dcc.auth import login
 from namhub_dcc.recordset_schema import update_recordset_schema
 
@@ -59,8 +61,9 @@ def run(args):
                 dry_run=args.dry_run,
                 synapse_client=syn,
             )
-        except ValueError as e:
-            # E.g. not a RecordSet, nothing bound, or upsert key not in schema.
+        except (ValueError, SynapseError) as e:
+            # E.g. not a RecordSet, nothing bound, or upsert key not in schema,
+            # or a Synapse error such as no edit permission.
             log.error("%s: %s", record_set_id, e)
             failed += 1
             continue

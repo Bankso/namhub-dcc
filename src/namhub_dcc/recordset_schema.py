@@ -90,37 +90,43 @@ def _read_header(path: str, fmt: _CsvFormat) -> list[str]:
         return next(reader, [])
 
 
-def _append_empty_columns(
-    src: str, dest: str, columns: list[str], fmt: _CsvFormat
-) -> None:
-    """Copy a CSV, appending columns to the header and an empty field per row.
+def _scan_csv(text: str, fmt: _CsvFormat, columns: list[str] | None = None):
+    """Scan CSV text record by record.
 
-    The file is not re-serialized: every existing byte is kept, and only the new
-    header names and one separator per new column are inserted at the end of
-    each record. Records are found by scanning for line breaks outside quoted
-    fields, honoring the RecordSet's quote and escape characters, so values
-    (including multi-line ones) are never re-quoted or re-escaped.
+    A quote character only opens a quoted field at the start of a field (the
+    beginning of a record or just after a separator); anywhere else it is an
+    ordinary character. Inside a quoted field the escape character protects a
+    following quote or escape character, and a doubled quote is a literal
+    quote. After the closing quote, characters up to the next separator or line
+    break are ordinary.
+
+    Returns ``(output, field_counts)``. ``field_counts`` has one entry per
+    record (``None`` for an empty record). If ``columns`` is given, ``output``
+    is the text with those columns appended (header names on the first record,
+    one separator per column on each other non-empty record); otherwise it is
+    the text unchanged.
     """
-    with open(src, newline="", encoding="utf-8") as f:
-        text = f.read()
-
-    header_suffix = "".join(fmt.separator + _quote_field(c, fmt) for c in columns)
-    row_suffix = fmt.separator * len(columns)
+    header_suffix = "".join(fmt.separator + _quote_field(c, fmt) for c in columns or [])
+    row_suffix = fmt.separator * len(columns or [])
 
     out = []
+    counts = []
     in_quotes = False
-    is_header = True
+    at_field_start = True
+    fields = 1
     record_is_empty = True
     i = 0
 
     def end_record():
-        nonlocal is_header, record_is_empty
-        if is_header:
+        nonlocal fields, record_is_empty, at_field_start
+        if not counts:
             out.append(header_suffix)
-            is_header = False
         elif not record_is_empty:
             out.append(row_suffix)
+        counts.append(None if record_is_empty else fields)
+        fields = 1
         record_is_empty = True
+        at_field_start = True
 
     while i < len(text):
         c = text[i]
@@ -144,18 +150,75 @@ def _append_empty_columns(
             out.append(line_end)
             i += len(line_end)
             continue
-        if c == fmt.quote:
+        if c == fmt.separator:
+            fields += 1
+            at_field_start = True
+            record_is_empty = False
+        elif c == fmt.quote and at_field_start:
             in_quotes = True
-        if c != "\ufeff":
+            at_field_start = False
+            record_is_empty = False
+        elif c != "﻿":
+            at_field_start = False
             record_is_empty = False
         out.append(c)
         i += 1
 
-    if not text.endswith(("\r", "\n")):
+    if text and not text.endswith(("\r", "\n")):
         end_record()
 
+    return "".join(out), counts
+
+
+def _check_field_counts(counts: list[int | None], expected: int, what: str) -> None:
+    bad = [n for n, c in enumerate(counts, start=1) if c is not None and c != expected]
+    if bad:
+        shown = ", ".join(str(n) for n in bad[:5])
+        more = f" (and {len(bad) - 5} more)" if len(bad) > 5 else ""
+        raise ValueError(
+            f"{what}: record(s) {shown}{more} do not have {expected} fields "
+            "(record 1 is the header), so columns cannot be added safely. "
+            "Nothing was changed."
+        )
+
+
+def _validate_csv_shape(text: str, fmt: _CsvFormat) -> int:
+    """Check every non-empty record has as many fields as the header.
+
+    Returns the header's field count.
+    """
+    _, counts = _scan_csv(text, fmt)
+    if not counts or not counts[0]:
+        raise ValueError("The CSV has no header line, so columns cannot be added.")
+    _check_field_counts(counts, counts[0], "The CSV")
+    return counts[0]
+
+
+def _append_empty_columns(
+    src: str, dest: str, columns: list[str], fmt: _CsvFormat
+) -> None:
+    """Copy a CSV, appending columns to the header and an empty field per row.
+
+    The file is not re-serialized: every existing byte is kept, and only the new
+    header names and one separator per new column are inserted at the end of
+    each record (see ``_scan_csv`` for how records are found). Values
+    (including multi-line ones) are never re-quoted or re-escaped.
+
+    Raises:
+        ValueError: If a non-empty record of the original does not have as many
+            fields as the header, or the result does not have header fields +
+            new columns in every record. Nothing is written.
+    """
+    with open(src, newline="", encoding="utf-8") as f:
+        text = f.read()
+
+    header_fields = _validate_csv_shape(text, fmt)
+    new_text, _ = _scan_csv(text, fmt, columns)
+    _, counts = _scan_csv(new_text, fmt)
+    _check_field_counts(counts, header_fields + len(columns), "The updated CSV")
+
     with open(dest, "w", newline="", encoding="utf-8") as f:
-        f.write("".join(out))
+        f.write(new_text)
 
 
 def _quote_field(value: str, fmt: _CsvFormat) -> str:
@@ -218,7 +281,12 @@ def update_recordset_schema(
     Raises:
         ValueError: If the ID is not a RecordSet, no schema is bound and none
             was given, the schema cannot be loaded, or the RecordSet's upsert
-            keys are not properties of the target schema. Nothing is changed.
+            keys are not properties of the target schema, or the CSV cannot
+            safely have columns added (no header, or a record whose field count
+            differs from the header's). Nothing is changed.
+        SynapseHTTPError: For Synapse errors other than those above, e.g. no
+            permission to edit the RecordSet when applying the update. A dry
+            run does not check edit permission.
     """
     syn = Synapse.get_client(synapse_client=synapse_client)
     record_set_id = record_set_id.strip()
@@ -276,6 +344,11 @@ def update_recordset_schema(
             dry_run=dry_run,
         )
         result.warnings = _grid_session_warnings(syn, record_set_id)
+        if added:
+            # Also in a dry run, so a preview reports a CSV that cannot be
+            # updated. Without added columns the CSV is left untouched.
+            with open(record_set.path, newline="", encoding="utf-8") as f:
+                _validate_csv_shape(f.read(), csv_format)
         if dry_run or result.no_op:
             return result
 

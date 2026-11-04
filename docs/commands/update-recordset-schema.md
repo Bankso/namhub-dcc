@@ -60,8 +60,18 @@ nothing is done.
   the output, never dropped or renamed (e.g. `ContextofUse` stays next to the
   new `ContextOfUse`). Clean these up in Synapse if needed.
 - Each RecordSet is processed independently. A failure (bad ID, not a
-  RecordSet, upsert key not in the schema, ...) is logged, the remaining IDs
+  RecordSet, upsert key not in the schema, a Synapse error such as no edit
+  permission, ...) is logged, the remaining IDs
   continue, and the command exits with status 1 at the end.
+- A dry run (and the GUI's Preview) does **not** check edit permission, so an
+  update can still fail with a permission error when applied.
+- If a run fails after the new file version is stored but before the schema is
+  re-bound, simply re-run it: the columns are already present so none are added
+  twice, and the binding is then applied.
+- The CSV must be rectangular: every non-empty record needs as many fields as
+  the header (a quote only opens a quoted field at the start of a field). If
+  not, the RecordSet is reported as an error (also in a dry run, when columns
+  would be added) and nothing is changed.
 - **Open Grid sessions:** a Grid session keeps the schema and columns it was
   started with. The command warns when *you* have an open Grid session on the
   RecordSet (Synapse only lists your own sessions, so sessions opened by other
@@ -92,7 +102,8 @@ result = update_recordset_schema("syn12345678", synapse_client=syn)
 Returns a `RecordSetSchemaUpdate` with `record_set_id`, `previous_schema_uri`,
 `new_schema_uri`, `added_columns`, `extra_columns`, `warnings`,
 `new_version_created`, `no_op` and `dry_run`. Raises `ValueError` for the
-error cases above (nothing is changed).
+error cases above (nothing is changed); Synapse HTTP errors (e.g. no edit
+permission) can also be raised, and the CLI reports both and continues.
 
 ## Source
 
