@@ -158,7 +158,7 @@ def _scan_csv(text: str, fmt: _CsvFormat, columns: list[str] | None = None):
             in_quotes = True
             at_field_start = False
             record_is_empty = False
-        elif c != "﻿":
+        elif c != "\ufeff":
             at_field_start = False
             record_is_empty = False
         out.append(c)
