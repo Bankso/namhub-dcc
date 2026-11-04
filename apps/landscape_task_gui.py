@@ -22,6 +22,7 @@ from namhub_dcc.landscape import (
     find_existing_task_entities,
     resolve_schema_uri,
 )
+from namhub_dcc.recordset_schema import update_recordset_schema
 
 # -----------------------------------------------------------------------------
 # App configuration
@@ -185,419 +186,562 @@ def render_schema_properties(schema_uri: str, upsert_key: str):
 
 
 # -----------------------------------------------------------------------------
-# Session state
+# Tabs
 # -----------------------------------------------------------------------------
-@st.cache_data(show_spinner=False)
-def default_schema_uri(_syn: Synapse) -> str:
-    """
-    The default schema URI pinned to its latest version, so the form shows
-    which version will be used. Falls back to the unversioned URI.
-    """
-    try:
-        return resolve_schema_uri(DEFAULT_SCHEMA_URI, synapse_client=_syn)
-    except (SynapseHTTPError, ValueError):
-        return DEFAULT_SCHEMA_URI
-
-
-def new_task() -> dict:
-    return {
-        "id": uuid.uuid4().hex,
-        "pi_name": "",
-        "folder_id": "",
-        "record_set_name": DEFAULT_RECORD_SET_NAME,
-        "record_set_description": "",
-        "curation_task_name": DEFAULT_CURATION_TASK_NAME,
-        "instructions": DEFAULT_INSTRUCTIONS,
-        "schema_uri": default_schema_uri(syn),
-        "upsert_key": DEFAULT_UPSERT_KEY,
-    }
-
-
-if "landscapes" not in st.session_state:
-    st.session_state.landscapes = [new_task()]
-
-
-def add_landscape():
-    st.session_state.landscapes.append(new_task())
-
-
-def remove_landscape(task_id: str):
-    st.session_state.landscapes = [
-        task for task in st.session_state.landscapes if task["id"] != task_id
-    ]
-
-
-def _name_with_pi(name: str, default: str, pi_name: str) -> str:
-    """
-    Append the PI name to a name left at its default, so tasks created with
-    the defaults get their own RecordSet and CurationTask.
-    """
-    name = name.strip()
-    pi_name = pi_name.strip()
-
-    if name == default and pi_name:
-        return f"{default} - {pi_name}"
-
-    return name
-
-
-def effective_curation_task_name(task: dict) -> str:
-    """Curation task names must not already exist in the folder's project."""
-    return _name_with_pi(
-        task["curation_task_name"], DEFAULT_CURATION_TASK_NAME, task["pi_name"]
-    )
-
-
-def effective_record_set_name(task: dict) -> str:
-    """RecordSet names must not already exist in the folder."""
-    return _name_with_pi(
-        task["record_set_name"], DEFAULT_RECORD_SET_NAME, task["pi_name"]
-    )
+create_tab, update_tab = st.tabs(["Create tasks", "Update RecordSet schema"])
 
 
 # -----------------------------------------------------------------------------
-# Form rendering
-# -----------------------------------------------------------------------------
-st.subheader("Landscape Tasks")
-
-for i, landscape in enumerate(st.session_state.landscapes):
-    task_id = landscape["id"]
-
-    with st.expander(f"Landscape Task {i + 1}", expanded=True):
-        left_col, right_col = st.columns(2)
-
-        with left_col:
-            pi_name = st.text_input(
-                "PI Name",
-                value=landscape["pi_name"],
-                key=f"pi_name_{task_id}",
-                placeholder="Example: Jane Doe",
-            )
-
-            folder_id = st.text_input(
-                "Synapse Folder ID",
-                value=landscape["folder_id"],
-                key=f"folder_id_{task_id}",
-                placeholder="Example: syn12345678",
-            )
-
-            record_set_name = st.text_input(
-                "Record Set Name",
-                value=landscape["record_set_name"],
-                key=f"record_set_name_{task_id}",
-                help=(
-                    "Must not already exist in the folder. If left at the "
-                    f"default ({DEFAULT_RECORD_SET_NAME!r}), the PI name is "
-                    "appended automatically."
-                ),
-            )
-
-            curation_task_name = st.text_input(
-                "Curation Task Name",
-                value=landscape["curation_task_name"],
-                key=f"curation_task_name_{task_id}",
-                help=(
-                    "Must not already exist in the project. If left at the "
-                    f"default ({DEFAULT_CURATION_TASK_NAME!r}), the PI name is "
-                    "appended automatically."
-                ),
-            )
-
-        with right_col:
-            schema_uri = st.text_input(
-                "Schema URI",
-                value=landscape["schema_uri"],
-                key=f"schema_uri_{task_id}",
-                placeholder="Example: NAMhub-Landscape-3.0.0",
-            )
-
-            try:
-                schema_properties = get_schema_properties(syn, schema_uri)
-            except (SynapseHTTPError, ValueError):
-                schema_properties = []
-
-            if schema_properties:
-                previous_upsert_key = landscape.get("upsert_key", "")
-
-                if previous_upsert_key in schema_properties:
-                    selected_index = schema_properties.index(previous_upsert_key)
-                elif DEFAULT_UPSERT_KEY in schema_properties:
-                    selected_index = schema_properties.index(DEFAULT_UPSERT_KEY)
-                else:
-                    selected_index = 0
-
-                upsert_key = st.selectbox(
-                    "Upsert Key",
-                    options=schema_properties,
-                    index=selected_index,
-                    key=f"upsert_key_{task_id}",
-                    help="Select the schema column that uniquely identifies rows for upsert.",
-                )
-            else:
-                upsert_key = st.text_input(
-                    "Upsert Key",
-                    value=landscape.get("upsert_key", DEFAULT_UPSERT_KEY),
-                    key=f"upsert_key_fallback_{task_id}",
-                    help="Schema properties could not be loaded, so this field is editable text.",
-                )
-
-            record_set_description = st.text_area(
-                "Record Set Description",
-                value=landscape["record_set_description"],
-                key=f"record_set_description_{task_id}",
-                placeholder="Example: Landscape task for Jane Doe",
-            )
-
-            instructions = st.text_area(
-                "Instructions",
-                value=landscape["instructions"],
-                key=f"instructions_{task_id}",
-            )
-
-        # Save widget values back to session state
-        landscape["pi_name"] = pi_name
-        landscape["folder_id"] = folder_id
-        landscape["record_set_name"] = record_set_name
-        landscape["curation_task_name"] = curation_task_name
-        landscape["schema_uri"] = schema_uri
-        landscape["upsert_key"] = upsert_key
-        landscape["record_set_description"] = record_set_description
-        landscape["instructions"] = instructions
-
-        st.divider()
-
-        render_schema_properties(
-            schema_uri=landscape["schema_uri"],
-            upsert_key=landscape["upsert_key"],
-        )
-
-        if len(st.session_state.landscapes) > 1:
-            st.button(
-                "Remove this task",
-                key=f"remove_{task_id}",
-                on_click=remove_landscape,
-                args=(task_id,),
-            )
-
-
-st.button("➕ Add another Landscape task", on_click=add_landscape)
-
-st.divider()
-
-
-# -----------------------------------------------------------------------------
-# Validation
+# Update RecordSet schema
 # -----------------------------------------------------------------------------
 SYNAPSE_ID_PATTERN = r"syn\d+"
 
 
-def validate_landscape_task(task: dict, index: int) -> list[str]:
-    errors = []
-
-    task_label = f"Task {index + 1}"
-
-    if not task["pi_name"].strip():
-        errors.append(f"{task_label}: PI Name is required.")
-
-    folder_id = task["folder_id"].strip()
-    if not folder_id:
-        errors.append(f"{task_label}: Synapse Folder ID is required.")
-    elif not re.fullmatch(SYNAPSE_ID_PATTERN, folder_id):
-        errors.append(f"{task_label}: Folder ID should look like syn12345678.")
-
-    if not task["record_set_name"].strip():
-        errors.append(f"{task_label}: Record Set Name is required.")
-
-    if not task["curation_task_name"].strip():
-        errors.append(f"{task_label}: Curation Task Name is required.")
-
-    if not task["schema_uri"].strip():
-        errors.append(f"{task_label}: Schema URI is required.")
-
-    if not task["upsert_key"].strip():
-        errors.append(f"{task_label}: Upsert Key is required.")
-
-    return errors
-
-
-def validate_unique_curation_task_names(tasks: list[dict]) -> list[str]:
+def parse_record_set_ids(text: str) -> tuple[list[str], list[str]]:
     """
-    Reject duplicate curation task names within the batch. Names must be
-    unique within a project or the later task updates the earlier one; the
-    project is inferred from each folder, so require uniqueness batch-wide.
+    Split a text area (one ID per line and/or comma-separated) into unique,
+    valid Synapse IDs and a list of problems.
     """
-    errors = []
-    seen: dict[str, int] = {}
+    ids: list[str] = []
+    problems: list[str] = []
 
-    for i, task in enumerate(tasks):
-        name = effective_curation_task_name(task)
+    for token in re.split(r"[\s,]+", text.strip()):
+        if not token:
+            continue
+        if not re.fullmatch(SYNAPSE_ID_PATTERN, token):
+            problems.append(f"{token!r} should look like syn12345678.")
+        elif token not in ids:
+            ids.append(token)
 
-        if not name:
+    return ids, problems
+
+
+def run_schema_update(record_set_ids: list[str], schema_uri: str, dry_run: bool):
+    """
+    Run update_recordset_schema for each ID. Returns (table rows, failure count).
+    A failure on one ID does not stop the others.
+    """
+    rows = []
+    failures = 0
+
+    for record_set_id in record_set_ids:
+        try:
+            result = update_recordset_schema(
+                record_set_id,
+                schema_uri or None,
+                dry_run=dry_run,
+                synapse_client=syn,
+            )
+        except Exception as e:  # noqa: BLE001 - report any per-RecordSet failure and continue
+            failures += 1
+            rows.append(
+                {
+                    "RecordSet ID": record_set_id,
+                    "Current schema": "",
+                    "Target schema": "",
+                    "Columns to add": "",
+                    "Extra columns (kept)": "",
+                    "Warnings": "",
+                    "Status": f"Failed: {e}",
+                }
+            )
             continue
 
-        if name in seen:
-            errors.append(
-                f"Task {i + 1}: Curation Task Name {name!r} is already used by "
-                f"Task {seen[name] + 1}. Names must be unique within the batch."
-            )
+        if result.no_op:
+            status = "Up to date"
+        elif dry_run:
+            status = "Will update"
         else:
-            seen[name] = i
+            status = "Updated"
 
-    return errors
-
-
-def validate_unique_record_sets(tasks: list[dict]) -> list[str]:
-    """
-    Reject duplicate (folder_id, record_set_name) pairs within the batch, since
-    the later task would update the earlier task's RecordSet.
-    """
-    errors = []
-    seen: dict[tuple[str, str], int] = {}
-
-    for i, task in enumerate(tasks):
-        key = (task["folder_id"].strip(), effective_record_set_name(task))
-
-        if not key[0] or not key[1]:
-            continue
-
-        if key in seen:
-            errors.append(
-                f"Task {i + 1}: Record Set Name {key[1]!r} is already used by "
-                f"Task {seen[key] + 1} in folder {key[0]}. Each task needs its "
-                "own RecordSet."
-            )
-        else:
-            seen[key] = i
-
-    return errors
-
-
-# -----------------------------------------------------------------------------
-# Create tasks
-# -----------------------------------------------------------------------------
-if st.button("🚀 Create Landscape Tasks", type="primary"):
-    all_errors = []
-
-    for i, task in enumerate(st.session_state.landscapes):
-        all_errors.extend(validate_landscape_task(task, i))
-
-    all_errors.extend(validate_unique_curation_task_names(st.session_state.landscapes))
-    all_errors.extend(validate_unique_record_sets(st.session_state.landscapes))
-
-    if all_errors:
-        st.error("Please fix the following issues before creating tasks:")
-        for error in all_errors:
-            st.write(f"- {error}")
-        st.stop()
-
-    # The curator upserts by name, so an existing RecordSet or CurationTask
-    # would be updated instead of a new one being created.
-    with st.spinner("Checking Synapse for existing RecordSets and tasks..."):
-        for i, task in enumerate(st.session_state.landscapes):
-            try:
-                existing = find_existing_task_entities(
-                    task["folder_id"].strip(),
-                    effective_record_set_name(task),
-                    effective_curation_task_name(task),
-                    synapse_client=syn,
-                )
-            except (SynapseHTTPError, ValueError) as e:
-                existing = [f"Could not check folder {task['folder_id']}: {e}"]
-
-            all_errors.extend(f"Task {i + 1}: {problem}" for problem in existing)
-
-    if all_errors:
-        st.error(
-            "Each new task needs its own RecordSet and curation task. Rename or "
-            "move these before creating tasks:"
-        )
-        for error in all_errors:
-            st.write(f"- {error}")
-        st.stop()
-
-    results = []
-
-    with st.spinner("Creating Landscape metadata tasks..."):
-        for task in st.session_state.landscapes:
-            pi_name = task["pi_name"].strip()
-            folder_id = task["folder_id"].strip()
-            schema_uri = task["schema_uri"].strip()
-            upsert_key = task["upsert_key"].strip()
-
-            try:
-                schema_uri = resolve_schema_uri(task["schema_uri"], synapse_client=syn)
-                record_set, curation_task, _data_grid = create_landscape_task(
-                    folder_id=folder_id,
-                    pi_name=pi_name,
-                    record_set_name=effective_record_set_name(task),
-                    record_set_description=task["record_set_description"].strip()
-                    or None,
-                    curation_task_name=effective_curation_task_name(task),
-                    instructions=task["instructions"].strip(),
-                    schema_uri=schema_uri,
-                    upsert_key=upsert_key,
-                    synapse_client=syn,
-                )
-
-                results.append(
-                    {
-                        "PI Name": pi_name,
-                        "Folder ID": folder_id,
-                        "Schema URI": schema_uri,
-                        "Upsert Key": upsert_key,
-                        "RecordSet ID": record_set.id,
-                        "Curation Task ID": curation_task.task_id,
-                        "Status": "Created",
-                    }
-                )
-
-            except Exception as e:  # noqa: BLE001 - report any per-task failure and continue
-                results.append(
-                    {
-                        "PI Name": pi_name,
-                        "Folder ID": folder_id,
-                        "Schema URI": schema_uri,
-                        "Upsert Key": upsert_key,
-                        "RecordSet ID": "",
-                        "Curation Task ID": "",
-                        "Status": f"Failed: {e}",
-                    }
-                )
-
-    succeeded = sum(1 for r in results if r["Status"] == "Created")
-    failed = len(results) - succeeded
-
-    if failed == 0:
-        st.success("Finished creating Landscape tasks.")
-    elif succeeded == 0:
-        st.error(f"All {failed} Landscape task(s) failed.")
-    else:
-        st.warning(
-            f"Finished with errors: {succeeded} task(s) created, {failed} failed."
+        rows.append(
+            {
+                "RecordSet ID": record_set_id,
+                "Current schema": result.previous_schema_uri or "(none)",
+                "Target schema": result.new_schema_uri,
+                "Columns to add": ", ".join(result.added_columns),
+                "Extra columns (kept)": ", ".join(result.extra_columns),
+                "Warnings": " ".join(result.warnings),
+                "Status": status,
+            }
         )
 
-    st.subheader("Results")
-    st.dataframe(
-        results,
-        width="stretch",
-        hide_index=True,
+    return rows, failures
+
+
+with update_tab:
+    st.write(
+        "Move existing RecordSets to a newer JSON schema version. Schema "
+        "properties missing from a RecordSet's columns are added as empty "
+        "columns (a new file version); nothing is removed. Rebinding the "
+        "RecordSet updates the validation of its curation task."
     )
 
-    st.subheader("Created Task Summary")
+    ids_text = st.text_area(
+        "RecordSet IDs",
+        key="update_ids_text",
+        placeholder="One per line or comma-separated, e.g. syn12345678",
+    )
+    update_schema_uri = st.text_input(
+        "Schema URI (optional)",
+        key="update_schema_uri",
+        placeholder="Blank = latest version of each RecordSet's current schema",
+        help="A URI without a version, e.g. NAMhub-Landscape, means its latest version.",
+    )
 
-    for result in results:
-        if result["Status"] == "Created":
-            st.markdown(
-                f"""
-**PI:** {result["PI Name"]}  
-**Folder:** `{result["Folder ID"]}`  
-**Schema URI:** `{result["Schema URI"]}`  
-**Upsert Key:** `{result["Upsert Key"]}`  
-**RecordSet:** `{result["RecordSet ID"]}`  
-**Curation Task:** `{result["Curation Task ID"]}`
-"""
-            )
+    if st.button("Preview", key="update_preview"):
+        record_set_ids, problems = parse_record_set_ids(ids_text)
+        if problems:
+            st.session_state.pop("update_preview_state", None)
+            st.error("Please fix the following issues:")
+            for problem in problems:
+                st.write(f"- {problem}")
+        elif not record_set_ids:
+            st.session_state.pop("update_preview_state", None)
+            st.error("Enter at least one RecordSet ID.")
         else:
-            st.error(
-                f"{result['PI Name']} / {result['Folder ID']} failed: {result['Status']}"
+            with st.spinner("Computing the plan..."):
+                rows, failures = run_schema_update(
+                    record_set_ids, update_schema_uri.strip(), dry_run=True
+                )
+            st.session_state["update_preview_state"] = {
+                "ids": record_set_ids,
+                "schema_uri": update_schema_uri.strip(),
+                "rows": rows,
+            }
+
+    preview = st.session_state.get("update_preview_state")
+    if preview:
+        st.subheader("Preview")
+        st.dataframe(preview["rows"], width="stretch", hide_index=True)
+
+        if any(row["Warnings"] for row in preview["rows"]):
+            st.warning("Some RecordSets have warnings; see the Warnings column.")
+
+        actionable = [
+            row["RecordSet ID"]
+            for row in preview["rows"]
+            if row["Status"] == "Will update"
+        ]
+        if not actionable:
+            st.info("Nothing to apply.")
+        elif st.button("Apply", type="primary", key="update_apply"):
+            with st.spinner("Updating RecordSets..."):
+                rows, failures = run_schema_update(
+                    actionable, preview["schema_uri"], dry_run=False
+                )
+            st.subheader("Results")
+            st.dataframe(rows, width="stretch", hide_index=True)
+            if failures:
+                st.error(f"{failures} RecordSet(s) failed; the others were updated.")
+            else:
+                st.success("Finished updating RecordSets.")
+            st.session_state.pop("update_preview_state", None)
+
+
+with create_tab:
+    # -----------------------------------------------------------------------------
+    # Session state
+    # -----------------------------------------------------------------------------
+    @st.cache_data(show_spinner=False)
+    def default_schema_uri(_syn: Synapse) -> str:
+        """
+        The default schema URI pinned to its latest version, so the form shows
+        which version will be used. Falls back to the unversioned URI.
+        """
+        try:
+            return resolve_schema_uri(DEFAULT_SCHEMA_URI, synapse_client=_syn)
+        except (SynapseHTTPError, ValueError):
+            return DEFAULT_SCHEMA_URI
+
+    def new_task() -> dict:
+        return {
+            "id": uuid.uuid4().hex,
+            "pi_name": "",
+            "folder_id": "",
+            "record_set_name": DEFAULT_RECORD_SET_NAME,
+            "record_set_description": "",
+            "curation_task_name": DEFAULT_CURATION_TASK_NAME,
+            "instructions": DEFAULT_INSTRUCTIONS,
+            "schema_uri": default_schema_uri(syn),
+            "upsert_key": DEFAULT_UPSERT_KEY,
+        }
+
+    if "landscapes" not in st.session_state:
+        st.session_state.landscapes = [new_task()]
+
+    def add_landscape():
+        st.session_state.landscapes.append(new_task())
+
+    def remove_landscape(task_id: str):
+        st.session_state.landscapes = [
+            task for task in st.session_state.landscapes if task["id"] != task_id
+        ]
+
+    def _name_with_pi(name: str, default: str, pi_name: str) -> str:
+        """
+        Append the PI name to a name left at its default, so tasks created with
+        the defaults get their own RecordSet and CurationTask.
+        """
+        name = name.strip()
+        pi_name = pi_name.strip()
+
+        if name == default and pi_name:
+            return f"{default} - {pi_name}"
+
+        return name
+
+    def effective_curation_task_name(task: dict) -> str:
+        """Curation task names must not already exist in the folder's project."""
+        return _name_with_pi(
+            task["curation_task_name"], DEFAULT_CURATION_TASK_NAME, task["pi_name"]
+        )
+
+    def effective_record_set_name(task: dict) -> str:
+        """RecordSet names must not already exist in the folder."""
+        return _name_with_pi(
+            task["record_set_name"], DEFAULT_RECORD_SET_NAME, task["pi_name"]
+        )
+
+    # -----------------------------------------------------------------------------
+    # Form rendering
+    # -----------------------------------------------------------------------------
+    st.subheader("Landscape Tasks")
+
+    for i, landscape in enumerate(st.session_state.landscapes):
+        task_id = landscape["id"]
+
+        with st.expander(f"Landscape Task {i + 1}", expanded=True):
+            left_col, right_col = st.columns(2)
+
+            with left_col:
+                pi_name = st.text_input(
+                    "PI Name",
+                    value=landscape["pi_name"],
+                    key=f"pi_name_{task_id}",
+                    placeholder="Example: Jane Doe",
+                )
+
+                folder_id = st.text_input(
+                    "Synapse Folder ID",
+                    value=landscape["folder_id"],
+                    key=f"folder_id_{task_id}",
+                    placeholder="Example: syn12345678",
+                )
+
+                record_set_name = st.text_input(
+                    "Record Set Name",
+                    value=landscape["record_set_name"],
+                    key=f"record_set_name_{task_id}",
+                    help=(
+                        "Must not already exist in the folder. If left at the "
+                        f"default ({DEFAULT_RECORD_SET_NAME!r}), the PI name is "
+                        "appended automatically."
+                    ),
+                )
+
+                curation_task_name = st.text_input(
+                    "Curation Task Name",
+                    value=landscape["curation_task_name"],
+                    key=f"curation_task_name_{task_id}",
+                    help=(
+                        "Must not already exist in the project. If left at the "
+                        f"default ({DEFAULT_CURATION_TASK_NAME!r}), the PI name is "
+                        "appended automatically."
+                    ),
+                )
+
+            with right_col:
+                schema_uri = st.text_input(
+                    "Schema URI",
+                    value=landscape["schema_uri"],
+                    key=f"schema_uri_{task_id}",
+                    placeholder="Example: NAMhub-Landscape-3.0.0",
+                )
+
+                try:
+                    schema_properties = get_schema_properties(syn, schema_uri)
+                except (SynapseHTTPError, ValueError):
+                    schema_properties = []
+
+                if schema_properties:
+                    previous_upsert_key = landscape.get("upsert_key", "")
+
+                    if previous_upsert_key in schema_properties:
+                        selected_index = schema_properties.index(previous_upsert_key)
+                    elif DEFAULT_UPSERT_KEY in schema_properties:
+                        selected_index = schema_properties.index(DEFAULT_UPSERT_KEY)
+                    else:
+                        selected_index = 0
+
+                    upsert_key = st.selectbox(
+                        "Upsert Key",
+                        options=schema_properties,
+                        index=selected_index,
+                        key=f"upsert_key_{task_id}",
+                        help="Select the schema column that uniquely identifies rows for upsert.",
+                    )
+                else:
+                    upsert_key = st.text_input(
+                        "Upsert Key",
+                        value=landscape.get("upsert_key", DEFAULT_UPSERT_KEY),
+                        key=f"upsert_key_fallback_{task_id}",
+                        help="Schema properties could not be loaded, so this field is editable text.",
+                    )
+
+                record_set_description = st.text_area(
+                    "Record Set Description",
+                    value=landscape["record_set_description"],
+                    key=f"record_set_description_{task_id}",
+                    placeholder="Example: Landscape task for Jane Doe",
+                )
+
+                instructions = st.text_area(
+                    "Instructions",
+                    value=landscape["instructions"],
+                    key=f"instructions_{task_id}",
+                )
+
+            # Save widget values back to session state
+            landscape["pi_name"] = pi_name
+            landscape["folder_id"] = folder_id
+            landscape["record_set_name"] = record_set_name
+            landscape["curation_task_name"] = curation_task_name
+            landscape["schema_uri"] = schema_uri
+            landscape["upsert_key"] = upsert_key
+            landscape["record_set_description"] = record_set_description
+            landscape["instructions"] = instructions
+
+            st.divider()
+
+            render_schema_properties(
+                schema_uri=landscape["schema_uri"],
+                upsert_key=landscape["upsert_key"],
             )
+
+            if len(st.session_state.landscapes) > 1:
+                st.button(
+                    "Remove this task",
+                    key=f"remove_{task_id}",
+                    on_click=remove_landscape,
+                    args=(task_id,),
+                )
+
+    st.button("➕ Add another Landscape task", on_click=add_landscape)
+
+    st.divider()
+
+    # -----------------------------------------------------------------------------
+    # Validation
+    # -----------------------------------------------------------------------------
+    def validate_landscape_task(task: dict, index: int) -> list[str]:
+        errors = []
+
+        task_label = f"Task {index + 1}"
+
+        if not task["pi_name"].strip():
+            errors.append(f"{task_label}: PI Name is required.")
+
+        folder_id = task["folder_id"].strip()
+        if not folder_id:
+            errors.append(f"{task_label}: Synapse Folder ID is required.")
+        elif not re.fullmatch(SYNAPSE_ID_PATTERN, folder_id):
+            errors.append(f"{task_label}: Folder ID should look like syn12345678.")
+
+        if not task["record_set_name"].strip():
+            errors.append(f"{task_label}: Record Set Name is required.")
+
+        if not task["curation_task_name"].strip():
+            errors.append(f"{task_label}: Curation Task Name is required.")
+
+        if not task["schema_uri"].strip():
+            errors.append(f"{task_label}: Schema URI is required.")
+
+        if not task["upsert_key"].strip():
+            errors.append(f"{task_label}: Upsert Key is required.")
+
+        return errors
+
+    def validate_unique_curation_task_names(tasks: list[dict]) -> list[str]:
+        """
+        Reject duplicate curation task names within the batch. Names must be
+        unique within a project or the later task updates the earlier one; the
+        project is inferred from each folder, so require uniqueness batch-wide.
+        """
+        errors = []
+        seen: dict[str, int] = {}
+
+        for i, task in enumerate(tasks):
+            name = effective_curation_task_name(task)
+
+            if not name:
+                continue
+
+            if name in seen:
+                errors.append(
+                    f"Task {i + 1}: Curation Task Name {name!r} is already used by "
+                    f"Task {seen[name] + 1}. Names must be unique within the batch."
+                )
+            else:
+                seen[name] = i
+
+        return errors
+
+    def validate_unique_record_sets(tasks: list[dict]) -> list[str]:
+        """
+        Reject duplicate (folder_id, record_set_name) pairs within the batch, since
+        the later task would update the earlier task's RecordSet.
+        """
+        errors = []
+        seen: dict[tuple[str, str], int] = {}
+
+        for i, task in enumerate(tasks):
+            key = (task["folder_id"].strip(), effective_record_set_name(task))
+
+            if not key[0] or not key[1]:
+                continue
+
+            if key in seen:
+                errors.append(
+                    f"Task {i + 1}: Record Set Name {key[1]!r} is already used by "
+                    f"Task {seen[key] + 1} in folder {key[0]}. Each task needs its "
+                    "own RecordSet."
+                )
+            else:
+                seen[key] = i
+
+        return errors
+
+    # -----------------------------------------------------------------------------
+    # Create tasks
+    # -----------------------------------------------------------------------------
+    if st.button("🚀 Create Landscape Tasks", type="primary"):
+        all_errors = []
+
+        for i, task in enumerate(st.session_state.landscapes):
+            all_errors.extend(validate_landscape_task(task, i))
+
+        all_errors.extend(
+            validate_unique_curation_task_names(st.session_state.landscapes)
+        )
+        all_errors.extend(validate_unique_record_sets(st.session_state.landscapes))
+
+        if all_errors:
+            st.error("Please fix the following issues before creating tasks:")
+            for error in all_errors:
+                st.write(f"- {error}")
+            st.stop()
+
+        # The curator upserts by name, so an existing RecordSet or CurationTask
+        # would be updated instead of a new one being created.
+        with st.spinner("Checking Synapse for existing RecordSets and tasks..."):
+            for i, task in enumerate(st.session_state.landscapes):
+                try:
+                    existing = find_existing_task_entities(
+                        task["folder_id"].strip(),
+                        effective_record_set_name(task),
+                        effective_curation_task_name(task),
+                        synapse_client=syn,
+                    )
+                except (SynapseHTTPError, ValueError) as e:
+                    existing = [f"Could not check folder {task['folder_id']}: {e}"]
+
+                all_errors.extend(f"Task {i + 1}: {problem}" for problem in existing)
+
+        if all_errors:
+            st.error(
+                "Each new task needs its own RecordSet and curation task. Rename or "
+                "move these before creating tasks:"
+            )
+            for error in all_errors:
+                st.write(f"- {error}")
+            st.stop()
+
+        results = []
+
+        with st.spinner("Creating Landscape metadata tasks..."):
+            for task in st.session_state.landscapes:
+                pi_name = task["pi_name"].strip()
+                folder_id = task["folder_id"].strip()
+                schema_uri = task["schema_uri"].strip()
+                upsert_key = task["upsert_key"].strip()
+
+                try:
+                    schema_uri = resolve_schema_uri(
+                        task["schema_uri"], synapse_client=syn
+                    )
+                    record_set, curation_task, _data_grid = create_landscape_task(
+                        folder_id=folder_id,
+                        pi_name=pi_name,
+                        record_set_name=effective_record_set_name(task),
+                        record_set_description=task["record_set_description"].strip()
+                        or None,
+                        curation_task_name=effective_curation_task_name(task),
+                        instructions=task["instructions"].strip(),
+                        schema_uri=schema_uri,
+                        upsert_key=upsert_key,
+                        synapse_client=syn,
+                    )
+
+                    results.append(
+                        {
+                            "PI Name": pi_name,
+                            "Folder ID": folder_id,
+                            "Schema URI": schema_uri,
+                            "Upsert Key": upsert_key,
+                            "RecordSet ID": record_set.id,
+                            "Curation Task ID": curation_task.task_id,
+                            "Status": "Created",
+                        }
+                    )
+
+                except Exception as e:  # noqa: BLE001 - report any per-task failure and continue
+                    results.append(
+                        {
+                            "PI Name": pi_name,
+                            "Folder ID": folder_id,
+                            "Schema URI": schema_uri,
+                            "Upsert Key": upsert_key,
+                            "RecordSet ID": "",
+                            "Curation Task ID": "",
+                            "Status": f"Failed: {e}",
+                        }
+                    )
+
+        succeeded = sum(1 for r in results if r["Status"] == "Created")
+        failed = len(results) - succeeded
+
+        if failed == 0:
+            st.success("Finished creating Landscape tasks.")
+        elif succeeded == 0:
+            st.error(f"All {failed} Landscape task(s) failed.")
+        else:
+            st.warning(
+                f"Finished with errors: {succeeded} task(s) created, {failed} failed."
+            )
+
+        st.subheader("Results")
+        st.dataframe(
+            results,
+            width="stretch",
+            hide_index=True,
+        )
+
+        st.subheader("Created Task Summary")
+
+        for result in results:
+            if result["Status"] == "Created":
+                st.markdown(
+                    f"""
+    **PI:** {result["PI Name"]}  
+    **Folder:** `{result["Folder ID"]}`  
+    **Schema URI:** `{result["Schema URI"]}`  
+    **Upsert Key:** `{result["Upsert Key"]}`  
+    **RecordSet:** `{result["RecordSet ID"]}`  
+    **Curation Task:** `{result["Curation Task ID"]}`
+    """
+                )
+            else:
+                st.error(
+                    f"{result['PI Name']} / {result['Folder ID']} failed: {result['Status']}"
+                )
