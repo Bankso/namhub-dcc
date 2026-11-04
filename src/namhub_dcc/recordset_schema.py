@@ -59,24 +59,110 @@ def _get_schema_properties(syn: Synapse, schema_uri: str) -> list[str]:
     return list(properties) if isinstance(properties, dict) else []
 
 
-def _read_header(path: str) -> list[str]:
+@dataclass
+class _CsvFormat:
+    """The parts of a RecordSet's ``csvDescriptor`` needed to edit its CSV."""
+
+    separator: str = ","
+    quote: str = '"'
+    escape: str = "\\"
+
+    @classmethod
+    def from_entity(cls, entity: dict) -> "_CsvFormat":
+        descriptor = entity.get("csvDescriptor") or {}
+        if descriptor.get("isFirstLineHeader") is False:
+            raise ValueError(
+                f"{entity.get('id')} has no header line, so its columns cannot be "
+                "matched to schema properties."
+            )
+        return cls(
+            separator=descriptor.get("separator") or cls.separator,
+            quote=descriptor.get("quoteCharacter") or cls.quote,
+            escape=descriptor.get("escapeCharacter") or cls.escape,
+        )
+
+
+def _read_header(path: str, fmt: _CsvFormat) -> list[str]:
     with open(path, newline="", encoding="utf-8-sig") as f:
-        return next(csv.reader(f), [])
+        reader = csv.reader(
+            f, delimiter=fmt.separator, quotechar=fmt.quote, escapechar=fmt.escape
+        )
+        return next(reader, [])
 
 
-def _append_empty_columns(src: str, dest: str, columns: list[str]) -> None:
-    """Copy a CSV, appending empty columns; existing columns and rows are kept."""
-    with (
-        open(src, newline="", encoding="utf-8-sig") as fin,
-        open(dest, "w", newline="", encoding="utf-8") as fout,
-    ):
-        reader = csv.reader(fin)
-        writer = csv.writer(fout)
-        header = next(reader, [])
-        writer.writerow(header + columns)
-        for row in reader:
-            # Pad short rows so the new columns line up with the new header.
-            writer.writerow(row + [""] * (len(header) - len(row)) + [""] * len(columns))
+def _append_empty_columns(
+    src: str, dest: str, columns: list[str], fmt: _CsvFormat
+) -> None:
+    """Copy a CSV, appending columns to the header and an empty field per row.
+
+    The file is not re-serialized: every existing byte is kept, and only the new
+    header names and one separator per new column are inserted at the end of
+    each record. Records are found by scanning for line breaks outside quoted
+    fields, honoring the RecordSet's quote and escape characters, so values
+    (including multi-line ones) are never re-quoted or re-escaped.
+    """
+    with open(src, newline="", encoding="utf-8") as f:
+        text = f.read()
+
+    header_suffix = "".join(fmt.separator + _quote_field(c, fmt) for c in columns)
+    row_suffix = fmt.separator * len(columns)
+
+    out = []
+    in_quotes = False
+    is_header = True
+    record_is_empty = True
+    i = 0
+
+    def end_record():
+        nonlocal is_header, record_is_empty
+        if is_header:
+            out.append(header_suffix)
+            is_header = False
+        elif not record_is_empty:
+            out.append(row_suffix)
+        record_is_empty = True
+
+    while i < len(text):
+        c = text[i]
+        if in_quotes:
+            if c == fmt.escape and text[i + 1 : i + 2] in (fmt.quote, fmt.escape):
+                out.append(text[i : i + 2])
+                i += 2
+                continue
+            if c == fmt.quote:
+                if text[i + 1 : i + 2] == fmt.quote:
+                    out.append(c * 2)
+                    i += 2
+                    continue
+                in_quotes = False
+            out.append(c)
+            i += 1
+            continue
+        if c in "\r\n":
+            line_end = "\r\n" if text.startswith("\r\n", i) else c
+            end_record()
+            out.append(line_end)
+            i += len(line_end)
+            continue
+        if c == fmt.quote:
+            in_quotes = True
+        if c != "\ufeff":
+            record_is_empty = False
+        out.append(c)
+        i += 1
+
+    if not text.endswith(("\r", "\n")):
+        end_record()
+
+    with open(dest, "w", newline="", encoding="utf-8") as f:
+        f.write("".join(out))
+
+
+def _quote_field(value: str, fmt: _CsvFormat) -> str:
+    """Quote a header name if it contains a separator, quote or line break."""
+    if any(ch in value for ch in (fmt.separator, fmt.quote, "\r", "\n")):
+        return fmt.quote + value.replace(fmt.quote, fmt.quote * 2) + fmt.quote
+    return value
 
 
 def _grid_session_warnings(syn: Synapse, record_set_id: str) -> list[str]:
@@ -145,6 +231,7 @@ def update_recordset_schema(
         kind = entity.get("concreteType", "unknown").rsplit(".", 1)[-1]
         raise ValueError(f"{record_set_id} is a {kind}, not a RecordSet.")
     upsert_keys = entity.get("upsertKey") or []
+    csv_format = _CsvFormat.from_entity(entity)
 
     binding = _get_bound_schema(syn, record_set_id)
     previous_uri = None
@@ -175,7 +262,7 @@ def update_recordset_schema(
 
     with tempfile.TemporaryDirectory() as tmp:
         record_set = RecordSet(id=record_set_id, path=tmp).get(synapse_client=syn)
-        header = _read_header(record_set.path)
+        header = _read_header(record_set.path, csv_format)
         added = [p for p in schema_properties if p not in header]
         extra = [c for c in header if c not in schema_properties]
 
@@ -197,7 +284,7 @@ def update_recordset_schema(
             new_dir = Path(tmp) / "updated"
             new_dir.mkdir()
             new_path = str(new_dir / Path(record_set.path).name)
-            _append_empty_columns(record_set.path, new_path, added)
+            _append_empty_columns(record_set.path, new_path, added, csv_format)
             record_set.path = new_path
             record_set.store(synapse_client=syn)
             result.new_version_created = True

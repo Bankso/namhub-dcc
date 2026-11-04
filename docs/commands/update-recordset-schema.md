@@ -43,8 +43,11 @@ namhub-dcc update-recordset-schema --record-set-id syn12345678 \
    otherwise it is reported as an error and left unchanged.
 3. Target-schema properties missing from the RecordSet's CSV header are
    appended as **empty columns** and stored as a new file version of the
-   RecordSet. Existing columns, their order and all row data are kept; name,
-   parent, description and upsert keys are preserved.
+   RecordSet. The file is not re-serialized: existing columns, their order
+   and all row data are kept byte-for-byte, and only the new header names and
+   one empty field per new column are added to each row (following the
+   RecordSet's CSV separator, quote and escape settings). Name, parent,
+   description and upsert keys are preserved.
 4. The RecordSet is bound to the target schema (replacing the previous
    binding; the "derived annotations" setting is carried over).
 
