@@ -26,7 +26,6 @@ dev = [
 ]
 gui = [
     "streamlit",
-    "requests",
 ]
 
 [project.urls]
