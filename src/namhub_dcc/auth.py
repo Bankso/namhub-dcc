@@ -1,6 +1,5 @@
 """Shared Synapse login helper used by every command."""
 
-
 import synapseclient
 
 

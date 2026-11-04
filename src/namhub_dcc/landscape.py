@@ -7,7 +7,6 @@ wraps that call with NAMHub's conventions so a Landscape Task can be created
 in any project/folder with a single function call.
 """
 
-
 from synapseclient import Synapse
 from synapseclient.extensions.curator import create_record_based_metadata_task
 from synapseclient.models import CurationTask, Grid, RecordSet
