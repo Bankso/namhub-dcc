@@ -3,8 +3,8 @@
 [← Back to docs index](../index.md)
 
 Creates a NAMHub **Landscape Task** in a Synapse project folder: a RecordSet
-bound to the `NAMhub-Landscape-1.0.0` JSON schema, paired with a CurationTask
-and a Grid view, via
+bound to the latest version of the `NAMhub-Landscape` JSON schema, paired
+with a CurationTask and a Grid view, via
 `synapseclient.extensions.curator.create_record_based_metadata_task`.
 
 This is the CLI wrapper around the `namhub_dcc.landscape.create_landscape_task`
@@ -31,7 +31,7 @@ namhub-dcc create-landscape-task \
 | `--record-set-description` | No | `Landscape task for <pi-name>` | Description for the RecordSet. |
 | `--curation-task-name` | No | `Landscape Task` | Name for the CurationTask. Must be unique within the project — see [Behavior notes](#behavior-notes). |
 | `--instructions` | No | `Please fill in each row with the dataset information.` | Instructions shown to the curator filling in the task. |
-| `--schema-uri` | No | `NAMhub-Landscape-1.0.0` | JSON schema URI to bind the RecordSet to. |
+| `--schema-uri` | No | `NAMhub-Landscape` | JSON schema URI to bind the RecordSet to. A URI without a version uses the latest registered version; pass e.g. `NAMhub-Landscape-3.0.0` to pin one. |
 | `--upsert-key` | No | `LandscapeId` | Column name that uniquely identifies rows for upsert. |
 | `--auth-token` | No | — | Synapse personal access token. Falls back to `SYNAPSE_AUTH_TOKEN` or `~/.synapseConfig`. |
 
@@ -65,8 +65,7 @@ syn = synapseclient.Synapse()
 syn.login()
 
 record_set, curation_task, grid = create_landscape_task(
-    project_id="syn12345678",
-    folder_id="syn74568176",
+    folder_id="syn12345678",
     pi_name="Jane Doe",
     synapse_client=syn,
 )
@@ -74,15 +73,15 @@ record_set, curation_task, grid = create_landscape_task(
 
 | Parameter | Default | Description |
 | --- | --- | --- |
-| `project_id` | — | Synapse ID of the project the folder lives in. |
 | `folder_id` | — | Synapse ID of the folder to create the Landscape Task RecordSet in. |
 | `pi_name` | — | Name of the PI this Landscape Task is for. |
 | `record_set_name` | `"Curation"` | Name for the RecordSet. |
 | `record_set_description` | `None` | Defaults to `"Landscape task for <pi_name>"`. |
 | `curation_task_name` | `"Landscape Task"` | Name for the CurationTask. |
 | `instructions` | `"Please fill in each row with the dataset information."` | Instructions for the curator. |
-| `schema_uri` | `"NAMhub-Landscape-1.0.0"` | JSON schema URI the RecordSet is bound to. |
+| `schema_uri` | `"NAMhub-Landscape"` | JSON schema URI the RecordSet is bound to. Unversioned URIs resolve to the latest version. |
 | `upsert_key` | `"LandscapeId"` | Column name that uniquely identifies rows for upsert. |
+| `project_id` | `None` | Keyword-only. Deprecated upstream; synapseclient infers the project from `folder_id`. |
 | `synapse_client` | `None` | An already-logged-in `Synapse` client; uses the last-created instance if omitted. |
 
 Returns a `(RecordSet, CurationTask, Grid)` tuple.
@@ -98,8 +97,9 @@ same `create_landscape_task` helper (see the Readme for how to run it).
 That original GUI's code default for `schema_uri` was
 `HTAN2Organization-scRNALevel1` (an unrelated HTAN scRNA-seq schema) — this was
 a bug, inconsistent with the GUI's own docstring/placeholder text. It was
-corrected here: `NAMhub-Landscape-1.0.0` is the schema whose properties
-actually match real Landscape Task RecordSets in Synapse.
+corrected here to the `NAMhub-Landscape` schema, whose properties actually
+match real Landscape Task RecordSets in Synapse; the default now resolves to
+its latest registered version.
 
 ## Source
 

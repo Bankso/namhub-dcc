@@ -9,6 +9,7 @@ from synapseclient.core.exceptions import (
     SynapseHTTPError,
     SynapseNoCredentialsError,
 )
+from synapseclient.models import JSONSchema
 
 from namhub_dcc.auth import login
 from namhub_dcc.landscape import (
@@ -18,6 +19,7 @@ from namhub_dcc.landscape import (
     DEFAULT_SCHEMA_URI,
     DEFAULT_UPSERT_KEY,
     create_landscape_task,
+    resolve_schema_uri,
 )
 
 # -----------------------------------------------------------------------------
@@ -84,13 +86,15 @@ def load_registered_schema(_syn: Synapse, schema_uri: str) -> dict:
     """
     Load a registered Synapse schema using the schema URI.
 
-    Example schema URI: NAMhub-Landscape-1.0.0
+    Example schema URI: NAMhub-Landscape-3.0.0. A URI without a version is
+    pinned to the latest version, as create_landscape_task does.
     """
     schema_uri = schema_uri.strip()
 
     if not schema_uri:
         return {}
 
+    schema_uri = resolve_schema_uri(schema_uri, synapse_client=_syn)
     encoded_schema_uri = urllib.parse.quote(schema_uri, safe="")
 
     return _syn.restGET(f"/schema/type/registered/{encoded_schema_uri}")
@@ -109,6 +113,21 @@ def get_schema_properties(_syn: Synapse, schema_uri: str) -> list[str]:
         return []
 
     return list(properties.keys())
+
+
+@st.cache_data(show_spinner=False)
+def get_latest_schema_properties(_syn: Synapse, schema_uri: str) -> list[str]:
+    """
+    Return the properties of the latest version of the schema named by the URI.
+
+    create_record_based_metadata_task builds the RecordSet's columns from
+    JSONSchema.from_uri(...).get_body(), which ignores the URI's version and
+    returns the latest one, while it binds (and validates against) the exact
+    version given.
+    """
+    schema = JSONSchema.from_uri(schema_uri.strip())
+
+    return list(schema.get_body(synapse_client=_syn).get("properties", {}).keys())
 
 
 def render_schema_properties(schema_uri: str, upsert_key: str):
@@ -142,6 +161,19 @@ def render_schema_properties(schema_uri: str, upsert_key: str):
             }
         )
 
+    try:
+        latest_properties = get_latest_schema_properties(syn, schema_uri)
+    except (SynapseHTTPError, ValueError):
+        latest_properties = properties
+
+    if set(latest_properties) != set(properties):
+        st.warning(
+            f"`{schema_uri}` is not the latest version of this schema. The "
+            "RecordSet will be bound to and validated against this version, but "
+            "its columns are built from the latest version, so they will not "
+            "match. Use the latest version of the schema."
+        )
+
     st.caption("The key icon marks the column currently selected as the upsert key.")
 
     st.dataframe(
@@ -154,17 +186,28 @@ def render_schema_properties(schema_uri: str, upsert_key: str):
 # -----------------------------------------------------------------------------
 # Session state
 # -----------------------------------------------------------------------------
+@st.cache_data(show_spinner=False)
+def default_schema_uri(_syn: Synapse) -> str:
+    """
+    The default schema URI pinned to its latest version, so the form shows
+    which version will be used. Falls back to the unversioned URI.
+    """
+    try:
+        return resolve_schema_uri(DEFAULT_SCHEMA_URI, synapse_client=_syn)
+    except (SynapseHTTPError, ValueError):
+        return DEFAULT_SCHEMA_URI
+
+
 def new_task() -> dict:
     return {
         "id": uuid.uuid4().hex,
         "pi_name": "",
-        "project_id": "",
         "folder_id": "",
         "record_set_name": DEFAULT_RECORD_SET_NAME,
         "record_set_description": "",
         "curation_task_name": DEFAULT_CURATION_TASK_NAME,
         "instructions": DEFAULT_INSTRUCTIONS,
-        "schema_uri": DEFAULT_SCHEMA_URI,
+        "schema_uri": default_schema_uri(syn),
         "upsert_key": DEFAULT_UPSERT_KEY,
     }
 
@@ -216,13 +259,6 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 placeholder="Example: Jane Doe",
             )
 
-            project_id = st.text_input(
-                "Synapse Project ID",
-                value=landscape["project_id"],
-                key=f"project_id_{task_id}",
-                placeholder="Example: syn12345678",
-            )
-
             folder_id = st.text_input(
                 "Synapse Folder ID",
                 value=landscape["folder_id"],
@@ -234,6 +270,10 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 "Record Set Name",
                 value=landscape["record_set_name"],
                 key=f"record_set_name_{task_id}",
+                help=(
+                    "An existing RecordSet with this name in the folder is "
+                    "reused and rebound to the schema."
+                ),
             )
 
             curation_task_name = st.text_input(
@@ -241,7 +281,7 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 value=landscape["curation_task_name"],
                 key=f"curation_task_name_{task_id}",
                 help=(
-                    "Must be unique within the project. If left at the "
+                    "Must be unique within the batch. If left at the "
                     f"default ({DEFAULT_CURATION_TASK_NAME!r}), the PI name is "
                     "appended automatically."
                 ),
@@ -252,7 +292,7 @@ for i, landscape in enumerate(st.session_state.landscapes):
                 "Schema URI",
                 value=landscape["schema_uri"],
                 key=f"schema_uri_{task_id}",
-                placeholder="Example: NAMhub-Landscape-1.0.0",
+                placeholder="Example: NAMhub-Landscape-3.0.0",
             )
 
             try:
@@ -300,7 +340,6 @@ for i, landscape in enumerate(st.session_state.landscapes):
 
         # Save widget values back to session state
         landscape["pi_name"] = pi_name
-        landscape["project_id"] = project_id
         landscape["folder_id"] = folder_id
         landscape["record_set_name"] = record_set_name
         landscape["curation_task_name"] = curation_task_name
@@ -344,12 +383,6 @@ def validate_landscape_task(task: dict, index: int) -> list[str]:
     if not task["pi_name"].strip():
         errors.append(f"{task_label}: PI Name is required.")
 
-    project_id = task["project_id"].strip()
-    if not project_id:
-        errors.append(f"{task_label}: Synapse Project ID is required.")
-    elif not re.fullmatch(SYNAPSE_ID_PATTERN, project_id):
-        errors.append(f"{task_label}: Project ID should look like syn12345678.")
-
     folder_id = task["folder_id"].strip()
     if not folder_id:
         errors.append(f"{task_label}: Synapse Folder ID is required.")
@@ -373,23 +406,49 @@ def validate_landscape_task(task: dict, index: int) -> list[str]:
 
 def validate_unique_curation_task_names(tasks: list[dict]) -> list[str]:
     """
-    Reject duplicate (project_id, curation_task_name) pairs within the batch,
-    since the later task would otherwise update the earlier one.
+    Reject duplicate curation task names within the batch. Names must be
+    unique within a project or the later task updates the earlier one; the
+    project is inferred from each folder, so require uniqueness batch-wide.
+    """
+    errors = []
+    seen: dict[str, int] = {}
+
+    for i, task in enumerate(tasks):
+        name = effective_curation_task_name(task)
+
+        if not name:
+            continue
+
+        if name in seen:
+            errors.append(
+                f"Task {i + 1}: Curation Task Name {name!r} is already used by "
+                f"Task {seen[name] + 1}. Names must be unique within the batch."
+            )
+        else:
+            seen[name] = i
+
+    return errors
+
+
+def validate_unique_record_sets(tasks: list[dict]) -> list[str]:
+    """
+    Reject duplicate (folder_id, record_set_name) pairs within the batch, since
+    the later task would reuse and rebind the earlier task's RecordSet.
     """
     errors = []
     seen: dict[tuple[str, str], int] = {}
 
     for i, task in enumerate(tasks):
-        key = (task["project_id"].strip(), effective_curation_task_name(task))
+        key = (task["folder_id"].strip(), task["record_set_name"].strip())
 
         if not key[0] or not key[1]:
             continue
 
         if key in seen:
             errors.append(
-                f"Task {i + 1}: Curation Task Name {key[1]!r} is already used by "
-                f"Task {seen[key] + 1} in project {key[0]}. Names must be unique "
-                "within a project."
+                f"Task {i + 1}: Record Set Name {key[1]!r} is already used by "
+                f"Task {seen[key] + 1} in folder {key[0]}. Use a different "
+                "folder or Record Set Name."
             )
         else:
             seen[key] = i
@@ -407,6 +466,7 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
         all_errors.extend(validate_landscape_task(task, i))
 
     all_errors.extend(validate_unique_curation_task_names(st.session_state.landscapes))
+    all_errors.extend(validate_unique_record_sets(st.session_state.landscapes))
 
     if all_errors:
         st.error("Please fix the following issues before creating tasks:")
@@ -419,14 +479,13 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
     with st.spinner("Creating Landscape metadata tasks..."):
         for task in st.session_state.landscapes:
             pi_name = task["pi_name"].strip()
-            project_id = task["project_id"].strip()
             folder_id = task["folder_id"].strip()
             schema_uri = task["schema_uri"].strip()
             upsert_key = task["upsert_key"].strip()
 
             try:
+                schema_uri = resolve_schema_uri(task["schema_uri"], synapse_client=syn)
                 record_set, curation_task, _data_grid = create_landscape_task(
-                    project_id=project_id,
                     folder_id=folder_id,
                     pi_name=pi_name,
                     record_set_name=task["record_set_name"].strip(),
@@ -442,7 +501,6 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
                 results.append(
                     {
                         "PI Name": pi_name,
-                        "Project ID": project_id,
                         "Folder ID": folder_id,
                         "Schema URI": schema_uri,
                         "Upsert Key": upsert_key,
@@ -456,7 +514,6 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
                 results.append(
                     {
                         "PI Name": pi_name,
-                        "Project ID": project_id,
                         "Folder ID": folder_id,
                         "Schema URI": schema_uri,
                         "Upsert Key": upsert_key,
@@ -492,7 +549,6 @@ if st.button("🚀 Create Landscape Tasks", type="primary"):
             st.markdown(
                 f"""
 **PI:** {result["PI Name"]}  
-**Project:** `{result["Project ID"]}`  
 **Folder:** `{result["Folder ID"]}`  
 **Schema URI:** `{result["Schema URI"]}`  
 **Upsert Key:** `{result["Upsert Key"]}`  

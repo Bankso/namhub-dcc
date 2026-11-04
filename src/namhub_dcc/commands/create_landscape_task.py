@@ -67,7 +67,9 @@ def add_parser(subparsers):
     parser.add_argument(
         "--schema-uri",
         default=DEFAULT_SCHEMA_URI,
-        help=f"JSON schema URI to bind the RecordSet to. Default: {DEFAULT_SCHEMA_URI!r}.",
+        help="JSON schema URI to bind the RecordSet to. A URI without a version "
+        "(e.g. NAMhub-Landscape) uses the latest registered version. "
+        f"Default: {DEFAULT_SCHEMA_URI!r}.",
     )
     parser.add_argument(
         "--upsert-key",
