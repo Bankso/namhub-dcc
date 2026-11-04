@@ -4,6 +4,8 @@ bound to the NAMhub-Landscape JSON schema) in a Synapse project folder.
 
 import logging
 
+from synapseclient.core.exceptions import SynapseError
+
 from namhub_dcc.auth import login
 from namhub_dcc.landscape import (
     DEFAULT_CURATION_TASK_NAME,
@@ -12,6 +14,7 @@ from namhub_dcc.landscape import (
     DEFAULT_SCHEMA_URI,
     DEFAULT_UPSERT_KEY,
     create_landscape_task,
+    effective_curation_task_name,
 )
 
 log = logging.getLogger(__name__)
@@ -39,13 +42,14 @@ def add_parser(subparsers):
         "--pi-name",
         required=True,
         help="Name of the PI this Landscape Task is for. Used to build the "
-        "default RecordSet description.",
+        "default RecordSet description and is appended to default names.",
     )
     parser.add_argument(
         "--record-set-name",
         default=DEFAULT_RECORD_SET_NAME,
         help="Name for the RecordSet. Must not already exist in the folder; "
-        "the command errors instead of updating it. "
+        "the command errors instead of updating it. If left at the default, "
+        "' - <pi-name>' is appended. "
         f"Default: {DEFAULT_RECORD_SET_NAME!r}.",
     )
     parser.add_argument(
@@ -58,7 +62,8 @@ def add_parser(subparsers):
         "--curation-task-name",
         default=DEFAULT_CURATION_TASK_NAME,
         help="Name for the CurationTask. Must not already exist in the "
-        "folder's project; the command errors instead of updating it. "
+        "folder's project; the command errors instead of updating it. If left "
+        "at the default, ' - <pi-name>' is appended. "
         f"Default: {DEFAULT_CURATION_TASK_NAME!r}.",
     )
     parser.add_argument(
@@ -104,13 +109,16 @@ def run(args):
             upsert_key=args.upsert_key,
             synapse_client=syn,
         )
-    except ValueError as e:
-        # E.g. the RecordSet or CurationTask already exists, or a bad schema URI.
+    except (ValueError, SynapseError) as e:
+        # E.g. the RecordSet or CurationTask already exists, a bad schema URI,
+        # or a Synapse error such as a missing folder or no permission.
         log.error("%s", e)
         raise SystemExit(1) from None
 
     log.info("Created RecordSet %r (%s)", record_set.name, record_set.id)
     log.info(
-        "Created CurationTask %r (%s)", args.curation_task_name, curation_task.task_id
+        "Created CurationTask %r (%s)",
+        effective_curation_task_name(args.curation_task_name, args.pi_name),
+        curation_task.task_id,
     )
     log.info("Created Grid view for RecordSet %s", record_set.id)

@@ -26,10 +26,10 @@ namhub-dcc create-landscape-task \
 | --- | --- | --- | --- |
 | `--project-id` | Yes | — | Synapse ID of the project the folder lives in. |
 | `--folder-id` | Yes | — | Synapse ID of the folder to create the Landscape Task RecordSet in. |
-| `--pi-name` | Yes | — | Name of the PI this Landscape Task is for. Used to build the default RecordSet description. |
-| `--record-set-name` | No | `Curation` | Name for the RecordSet. Must not already exist in the folder — see [Behavior notes](#behavior-notes). |
+| `--pi-name` | Yes | — | Name of the PI this Landscape Task is for. Used to build the default RecordSet description and appended to default names. |
+| `--record-set-name` | No | `Curation - <PI name>` | Name for the RecordSet; a name left at `Curation` gets ` - <PI name>` appended, any other name is used as given. Must not already exist in the folder — see [Behavior notes](#behavior-notes). |
 | `--record-set-description` | No | `Landscape task for <pi-name>` | Description for the RecordSet. |
-| `--curation-task-name` | No | `Landscape Task` | Name for the CurationTask. Must not already exist in the project — see [Behavior notes](#behavior-notes). |
+| `--curation-task-name` | No | `Landscape Task - <PI name>` | Name for the CurationTask; a name left at `Landscape Task` gets ` - <PI name>` appended, any other name is used as given. Must not already exist in the project — see [Behavior notes](#behavior-notes). |
 | `--instructions` | No | `Please fill in each row with the dataset information.` | Instructions shown to the curator filling in the task. |
 | `--schema-uri` | No | `NAMhub-Landscape` | JSON schema URI to bind the RecordSet to. A URI without a version uses the latest registered version; pass e.g. `NAMhub-Landscape-3.0.0` to pin one. |
 | `--upsert-key` | No | `LandscapeId` | Column name that uniquely identifies rows for upsert. |
@@ -54,6 +54,25 @@ namhub-dcc create-landscape-task \
   with an error if either exists. Pick a different `--record-set-name` /
   `--curation-task-name` to create another task in the same folder or
   project.
+- **Default names include the PI name.** A name left at its default gets
+  ` - <PI name>` appended (`Curation - Jane Doe`, `Landscape Task - Jane Doe`)
+  so tasks created with defaults don't collide. The rule lives in
+  `namhub_dcc.landscape` (`effective_record_set_name`,
+  `effective_curation_task_name`) and is shared by the CLI, the Python API and
+  the GUI. An explicit non-default name is used unchanged.
+- **Failed creation is cleaned up.** The curator stores the RecordSet, then the
+  CurationTask, then the Grid. If a step fails, the RecordSet and CurationTask
+  this call created are deleted (only if created by you after the call
+  started; any Grid session on the RecordSet is deleted too) and the original
+  error is re-raised, so the command can simply be re-run. If cleanup itself
+  fails, the IDs left behind are logged at error level.
+- **Schema version consistency.** For an unversioned `--schema-uri`, the
+  command checks that Synapse's "latest" version has the same property names as
+  the highest-numbered version it pins to (the RecordSet's columns come from the
+  former, the binding from the latter), and errors before creating anything if
+  not. Explicitly versioned URIs are not checked.
+- Synapse errors (e.g. a missing folder or no permission) are reported as a
+  clean error with exit status 1.
 
 ## Python API
 
@@ -75,9 +94,9 @@ record_set, curation_task, grid = create_landscape_task(
 | --- | --- | --- |
 | `folder_id` | — | Synapse ID of the folder to create the Landscape Task RecordSet in. |
 | `pi_name` | — | Name of the PI this Landscape Task is for. |
-| `record_set_name` | `"Curation"` | Name for the RecordSet. |
+| `record_set_name` | `"Curation"` | Name for the RecordSet; left at the default, ` - <pi_name>` is appended (`effective_record_set_name`). |
 | `record_set_description` | `None` | Defaults to `"Landscape task for <pi_name>"`. |
-| `curation_task_name` | `"Landscape Task"` | Name for the CurationTask. |
+| `curation_task_name` | `"Landscape Task"` | Name for the CurationTask; left at the default, ` - <pi_name>` is appended (`effective_curation_task_name`). |
 | `instructions` | `"Please fill in each row with the dataset information."` | Instructions for the curator. |
 | `schema_uri` | `"NAMhub-Landscape"` | JSON schema URI the RecordSet is bound to. Unversioned URIs resolve to the latest version. |
 | `upsert_key` | `"LandscapeId"` | Column name that uniquely identifies rows for upsert. |

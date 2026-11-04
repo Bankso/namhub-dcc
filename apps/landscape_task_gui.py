@@ -19,6 +19,8 @@ from namhub_dcc.landscape import (
     DEFAULT_SCHEMA_URI,
     DEFAULT_UPSERT_KEY,
     create_landscape_task,
+    effective_curation_task_name,
+    effective_record_set_name,
     find_existing_task_entities,
     resolve_schema_uri,
 )
@@ -83,7 +85,7 @@ st.success("Logged into Synapse.")
 # Schema loading
 # -----------------------------------------------------------------------------
 # The leading underscore tells st.cache_data not to hash the client.
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl="10m")
 def load_registered_schema(_syn: Synapse, schema_uri: str) -> dict:
     """
     Load a registered Synapse schema using the schema URI.
@@ -102,7 +104,7 @@ def load_registered_schema(_syn: Synapse, schema_uri: str) -> dict:
     return _syn.restGET(f"/schema/type/registered/{encoded_schema_uri}")
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl="10m")
 def get_schema_properties(_syn: Synapse, schema_uri: str) -> list[str]:
     """
     Return the schema properties as column headers.
@@ -117,7 +119,7 @@ def get_schema_properties(_syn: Synapse, schema_uri: str) -> list[str]:
     return list(properties.keys())
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl="10m")
 def get_latest_schema_properties(_syn: Synapse, schema_uri: str) -> list[str]:
     """
     Return the properties of the latest version of the schema named by the URI.
@@ -343,7 +345,7 @@ with create_tab:
     # -----------------------------------------------------------------------------
     # Session state
     # -----------------------------------------------------------------------------
-    @st.cache_data(show_spinner=False)
+    @st.cache_data(show_spinner=False, ttl="10m")
     def default_schema_uri(_syn: Synapse) -> str:
         """
         The default schema URI pinned to its latest version, so the form shows
@@ -377,31 +379,6 @@ with create_tab:
         st.session_state.landscapes = [
             task for task in st.session_state.landscapes if task["id"] != task_id
         ]
-
-    def _name_with_pi(name: str, default: str, pi_name: str) -> str:
-        """
-        Append the PI name to a name left at its default, so tasks created with
-        the defaults get their own RecordSet and CurationTask.
-        """
-        name = name.strip()
-        pi_name = pi_name.strip()
-
-        if name == default and pi_name:
-            return f"{default} - {pi_name}"
-
-        return name
-
-    def effective_curation_task_name(task: dict) -> str:
-        """Curation task names must not already exist in the folder's project."""
-        return _name_with_pi(
-            task["curation_task_name"], DEFAULT_CURATION_TASK_NAME, task["pi_name"]
-        )
-
-    def effective_record_set_name(task: dict) -> str:
-        """RecordSet names must not already exist in the folder."""
-        return _name_with_pi(
-            task["record_set_name"], DEFAULT_RECORD_SET_NAME, task["pi_name"]
-        )
 
     # -----------------------------------------------------------------------------
     # Form rendering
@@ -572,7 +549,9 @@ with create_tab:
         seen: dict[str, int] = {}
 
         for i, task in enumerate(tasks):
-            name = effective_curation_task_name(task)
+            name = effective_curation_task_name(
+                task["curation_task_name"], task["pi_name"]
+            )
 
             if not name:
                 continue
@@ -596,7 +575,10 @@ with create_tab:
         seen: dict[tuple[str, str], int] = {}
 
         for i, task in enumerate(tasks):
-            key = (task["folder_id"].strip(), effective_record_set_name(task))
+            key = (
+                task["folder_id"].strip(),
+                effective_record_set_name(task["record_set_name"], task["pi_name"]),
+            )
 
             if not key[0] or not key[1]:
                 continue
@@ -639,8 +621,12 @@ with create_tab:
                 try:
                     existing = find_existing_task_entities(
                         task["folder_id"].strip(),
-                        effective_record_set_name(task),
-                        effective_curation_task_name(task),
+                        effective_record_set_name(
+                            task["record_set_name"], task["pi_name"]
+                        ),
+                        effective_curation_task_name(
+                            task["curation_task_name"], task["pi_name"]
+                        ),
                         synapse_client=syn,
                     )
                 except (SynapseHTTPError, ValueError) as e:
@@ -673,12 +659,13 @@ with create_tab:
                     record_set, curation_task, _data_grid = create_landscape_task(
                         folder_id=folder_id,
                         pi_name=pi_name,
-                        record_set_name=effective_record_set_name(task),
+                        record_set_name=task["record_set_name"],
                         record_set_description=task["record_set_description"].strip()
                         or None,
-                        curation_task_name=effective_curation_task_name(task),
+                        curation_task_name=task["curation_task_name"],
                         instructions=task["instructions"].strip(),
-                        schema_uri=schema_uri,
+                        # Unresolved, so the library's latest-vs-highest check runs.
+                        schema_uri=task["schema_uri"].strip(),
                         upsert_key=upsert_key,
                         synapse_client=syn,
                     )
