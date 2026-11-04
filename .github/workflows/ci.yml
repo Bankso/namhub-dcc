@@ -30,3 +30,4 @@ jobs:
           namhub-dcc --help
           namhub-dcc create-folders-from-recordset --help
           namhub-dcc create-landscape-task --help
+          namhub-dcc update-recordset-schema --help
