@@ -1,0 +1,340 @@
+{
+  "_comment": "Editable rubric for summarize_landscape.py. See rubric.md for the explanation of every key. Matching is case-insensitive.",
+  "sensitivity_tiers": [
+    "Open",
+    "Registered",
+    "Controlled"
+  ],
+  "human_species": [
+    "Homo sapiens"
+  ],
+  "controlled_categories": [
+    "clinical",
+    "clinical data",
+    "demographics",
+    "epidemiological data",
+    "survey data",
+    "behavioral data",
+    "audio transcript",
+    "text data",
+    "germline variants",
+    "annotated germline variants",
+    "genomic variants",
+    "structural variants",
+    "copy number variants",
+    "aligned reads"
+  ],
+  "identifiable_formats": [
+    "fastq",
+    "bam",
+    "cram",
+    "sam",
+    "vcf",
+    "bcf",
+    "DICOM",
+    "nii",
+    "MPEG-4",
+    "avi",
+    "mov",
+    "idat",
+    "edat3",
+    "psydat"
+  ],
+  "identifiable_processing_levels": [
+    "Level 1",
+    "Level 2"
+  ],
+  "code_model_formats": [
+    "Github Repo",
+    "docker image",
+    "Python script",
+    "R script",
+    "MATLAB script",
+    "bash script",
+    "Jupyter notebook",
+    "rmd",
+    "js",
+    "script"
+  ],
+  "code_model_categories": [
+    "model"
+  ],
+  "code_model_always_open": true,
+  "assay_aliases": {
+    "PharmocokineticADMEassay": "pharmacokinetic ADME assay"
+  },
+  "unspecified_assay_values": [
+    "Unknown"
+  ],
+  "assay_resolution": {
+    "single-cell": [
+      "single-cell RNA-seq",
+      "single cell ATAC-seq",
+      "scCGI-seq"
+    ],
+    "single-nucleus": [
+      "single-nucleus RNA-seq",
+      "single-nucleus ATAC-seq"
+    ],
+    "spatial": [
+      "spatial transcriptomics"
+    ]
+  },
+  "placeholder_patterns": [
+    "^\\s*(initial\\s+)?test\\s*$"
+  ],
+  "format_category_conflicts": [
+    {
+      "formats": [
+        "fastq",
+        "bam",
+        "cram",
+        "sam",
+        "vcf",
+        "bcf",
+        "idat"
+      ],
+      "categories": [
+        "image",
+        "mask image",
+        "volume"
+      ],
+      "message": "sequencing format on an imaging dataset"
+    }
+  ],
+  "computational_assays": [
+    "in silico synthesis"
+  ],
+  "open_categories": [
+    "data index"
+  ],
+  "public_archive_repositories": [
+    "GEO",
+    "SRA",
+    "PRIDE",
+    "MetaboLights",
+    "BioImage Archive",
+    "IDR"
+  ],
+  "needs_input_patterns": [
+    {
+      "pattern": "consent|restricted access|access restrictions|\\bIRB\\b",
+      "message": "free text mentions consent/access terms"
+    },
+    {
+      "pattern": "de-?identif",
+      "message": "text says de-identified; Controlled retained, lower only with explicit approval",
+      "tiers": [
+        "Controlled"
+      ]
+    },
+    {
+      "pattern": "polygenic|patient|donor|participant|processed dataset",
+      "message": "code/model may embed participant-derived data; confirm before open release",
+      "code_model_only": true
+    }
+  ],
+  "processing_level_order": [
+    "Level 1",
+    "Level 2",
+    "Level 3",
+    "Level 4",
+    "Auxiliary",
+    "Metadata",
+    "Not Applicable",
+    "Unspecified"
+  ],
+  "level_max_tier": {
+    "Level 3": "Registered",
+    "Level 4": "Registered"
+  },
+  "level_cap_exempt_categories": [
+    "clinical",
+    "demographics",
+    "epidemiological data",
+    "survey data",
+    "audio transcript",
+    "text data",
+    "germline variants",
+    "annotated germline variants",
+    "genomic variants",
+    "structural variants",
+    "copy number variants"
+  ],
+  "repository_rules": [
+    {
+      "id": "dbgap-controlled-sequencing",
+      "repository": "dbGaP",
+      "sensitivity": [
+        "Controlled"
+      ],
+      "formats": [
+        "fastq",
+        "bam",
+        "cram",
+        "sam",
+        "vcf",
+        "bcf"
+      ],
+      "categories": [
+        "germline variants",
+        "annotated germline variants",
+        "genomic variants",
+        "structural variants",
+        "copy number variants",
+        "aligned reads"
+      ],
+      "note": "Human controlled sequencing or variant data"
+    },
+    {
+      "id": "synapse-controlled-other",
+      "repository": "Synapse (controlled access)",
+      "sensitivity": [
+        "Controlled"
+      ],
+      "note": "Human controlled data that is not sequencing"
+    },
+    {
+      "id": "code-model",
+      "repository": "GitHub + Zenodo",
+      "formats": [
+        "docker image",
+        "Github Repo",
+        "Python script",
+        "R script",
+        "Jupyter notebook",
+        "script"
+      ],
+      "categories": [
+        "model"
+      ],
+      "note": "Models and code"
+    },
+    {
+      "id": "sra-raw-reads",
+      "repository": "SRA",
+      "sensitivity": [
+        "Open",
+        "Registered"
+      ],
+      "formats": [
+        "fastq",
+        "bam",
+        "cram",
+        "sam"
+      ],
+      "categories": [
+        "aligned reads",
+        "raw reads"
+      ],
+      "note": "Non-controlled sequencing reads"
+    },
+    {
+      "id": "geo-expression",
+      "repository": "GEO",
+      "sensitivity": [
+        "Open",
+        "Registered"
+      ],
+      "categories": [
+        "gene expression",
+        "count matrix"
+      ],
+      "note": "Non-controlled expression data"
+    },
+    {
+      "id": "pride-proteomics",
+      "repository": "PRIDE",
+      "categories": [
+        "proteomics"
+      ],
+      "formats": [
+        "mzML",
+        "mzXML",
+        "raw"
+      ],
+      "note": "Proteomics and mass spectrometry data"
+    },
+    {
+      "id": "metabolights-metabolomics",
+      "repository": "MetaboLights",
+      "categories": [
+        "metabolomics"
+      ],
+      "note": "Metabolomics"
+    },
+    {
+      "id": "idr-reference-images",
+      "repository": "IDR",
+      "sensitivity": [
+        "Open",
+        "Registered"
+      ],
+      "categories": [
+        "reference image"
+      ],
+      "note": "Reference image sets"
+    },
+    {
+      "id": "bia-images",
+      "repository": "BioImage Archive",
+      "sensitivity": [
+        "Open",
+        "Registered"
+      ],
+      "categories": [
+        "image",
+        "mask image",
+        "volume"
+      ],
+      "formats": [
+        "ome-tiff",
+        "tiff"
+      ],
+      "note": "Non-controlled imaging"
+    }
+  ],
+  "fallback_repository": {
+    "Open": {
+      "repository": "Synapse (open)",
+      "id": "fallback-open",
+      "note": "No specific rule matched"
+    },
+    "Registered": {
+      "repository": "Synapse (registered access)",
+      "id": "fallback-registered",
+      "note": "No specific rule matched"
+    },
+    "Controlled": {
+      "repository": "Synapse (controlled access)",
+      "id": "fallback-controlled",
+      "note": "No specific rule matched"
+    }
+  },
+  "external_repository_prefixes_internal": [
+    "Synapse"
+  ],
+  "priority": {
+    "high_fraction_of_studies": 0.5,
+    "top_fraction_of_categories": 0.3333333333,
+    "min_studies_for_high": 2,
+    "low_if_study_count_equals": 1,
+    "exclude_from_high": [
+      "Unknown"
+    ]
+  },
+  "old_manifest_fill": {
+    "level": true,
+    "file_count": true
+  },
+  "volume_band_order": [
+    "under 1 GB",
+    "GBs",
+    "tens of GB",
+    "hundreds of GB",
+    "TBs",
+    "tens of TB",
+    "hundreds of TB",
+    "PBs"
+  ]
+}

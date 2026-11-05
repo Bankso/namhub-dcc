@@ -1,0 +1,6 @@
+LandscapeId,StudyName,DatasetName,DatasetGroup,DerivedFrom,DatasetAssay,DatasetCategory,DatasetSpecies,DatasetFileFormat,DatasetProcessingLevel,ExpectedNumberOfSamples,FileRatio,FileRatioUnit,ContextOfUse,Comments
+L9,S1,D9,,,,model,Mus musculus,docker image,Not Applicable,1,1,Total files,,
+L10,S2,D10,,,,,Mus musculus,csv,Level 3,2,1,Total files,,
+L11,S4,D11,,,clinical data,clinical data,Homo sapiens,csv,Level 3,2,1,Total files,,
+L12,S5,D12,,,,image,Mus musculus,ome-tiff,Level 2,2,2,Files per sample,,
+L13,S4,D13,,,  rna-seq ,gene expression,Homo sapiens,csv,Level 3,8,4,Samples per file,,

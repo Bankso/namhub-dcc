@@ -1,0 +1,4 @@
+Landscape_id,Study Name,Dataset Name,Dataset Group,Derived From,Dataset Assay,Dataset Category,Dataset Species,Dataset File Format,Dataset Processing Level,Expected Number Of Samples,File Ratio,File Ratio Unit,Context Of Use,Comments
+L6,S3,D6,,,clinical data,Clinical data,Homo sapiens,csv,Level 3,5,1,Total files,,
+L7,S3,D7,,,RNA-seq,gene expression,Unknown,csv,Level 3,4,1,Files per sample,,
+L8,S3,D8,G8,,Atomic force microscopy,image,Mus musculus,ome-tiff,Level 1,3,1,Files per sample,,

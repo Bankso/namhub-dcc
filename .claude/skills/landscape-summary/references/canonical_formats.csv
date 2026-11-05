@@ -1,0 +1,155 @@
+Assay,Category,ProcessingLevel,PreferredFileFormat,Rationale
+RNA-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+RNA-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+RNA-seq,,Level 3,tsv,Bulk gene-by-sample count matrix as plain tsv
+RNA-seq,,Level 4,tsv,Differential expression / normalized tables as tsv
+single-cell RNA-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+single-cell RNA-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+single-cell RNA-seq,,Level 3,h5ad; mtx,AnnData h5ad is the community standard; 10x-style MatrixMarket mtx is co-canonical for raw matrices
+single-cell RNA-seq,,Level 4,h5ad,Annotated AnnData (clusters embeddings) as h5ad
+single-nucleus RNA-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+single-nucleus RNA-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+single-nucleus RNA-seq,,Level 3,h5ad; mtx,AnnData h5ad is the community standard; 10x-style MatrixMarket mtx is co-canonical for raw matrices
+single-nucleus RNA-seq,,Level 4,h5ad,Annotated AnnData (clusters embeddings) as h5ad
+single cell ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+single cell ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+single cell ATAC-seq,,Level 3,bed narrowPeak; tsv,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
+single cell ATAC-seq,,Level 4,h5ad,Cell-by-peak/tile matrix with annotations as AnnData h5ad (SnapATAC2/ArchR export)
+single-nucleus ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+single-nucleus ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+single-nucleus ATAC-seq,,Level 3,bed narrowPeak; tsv,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
+single-nucleus ATAC-seq,,Level 4,h5ad,Cell-by-peak/tile matrix with annotations as AnnData h5ad (SnapATAC2/ArchR export)
+ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+ATAC-seq,,Level 3,bed narrowPeak,Peak calls (MACS2 narrowPeak) are the standard open Level 3 product
+ATAC-seq,,Level 4,tsv,Differential accessibility tables as tsv
+whole exome sequencing,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+whole exome sequencing,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+whole exome sequencing,,Level 3,vcf,Variant calls as VCF
+whole exome sequencing,,Level 4,vcf,Annotated/filtered variant calls remain VCF (maf is an alternative for somatic-only cohorts; not co-canonical)
+spatial transcriptomics,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+spatial transcriptomics,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
+spatial transcriptomics,,Level 3,h5ad,Spot/cell-by-gene matrix with coordinates as AnnData h5ad (SpatialData/Squidpy convention)
+spatial transcriptomics,,Level 4,h5ad,Annotated AnnData as h5ad
+3D confocal imaging,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+3D confocal imaging,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+3D confocal imaging,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+3D confocal imaging,,Level 4,csv,Summary measurements/statistics as csv
+confocal microscopy,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+confocal microscopy,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+confocal microscopy,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+confocal microscopy,,Level 4,csv,Summary measurements/statistics as csv
+fluorescence microscopy assay,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+fluorescence microscopy assay,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+fluorescence microscopy assay,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+fluorescence microscopy assay,,Level 4,csv,Summary measurements/statistics as csv
+live imaging,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+live imaging,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+live imaging,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+live imaging,,Level 4,csv,Summary measurements/statistics as csv
+brightfield microscopy,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+brightfield microscopy,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+brightfield microscopy,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+brightfield microscopy,,Level 4,csv,Summary measurements/statistics as csv
+immunofluorescence,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+immunofluorescence,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+immunofluorescence,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+immunofluorescence,,Level 4,csv,Summary measurements/statistics as csv
+immunohistochemistry,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+immunohistochemistry,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+immunohistochemistry,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+immunohistochemistry,,Level 4,csv,Summary measurements/statistics as csv
+second harmonic generation imaging,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+second harmonic generation imaging,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+second harmonic generation imaging,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+second harmonic generation imaging,,Level 4,csv,Summary measurements/statistics as csv
+electron microscopy,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+electron microscopy,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+electron microscopy,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+electron microscopy,,Level 4,csv,Summary measurements/statistics as csv
+atomic force microscopy,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
+atomic force microscopy,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+atomic force microscopy,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+atomic force microscopy,,Level 4,csv,Summary measurements/statistics as csv
+histology,,Level 1,ome-tiff,Pyramidal OME-TIFF chosen over vendor svs (Aperio) for openness; svs is acceptable as a declared format but is proprietary
+histology,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
+histology,,Level 3,csv; ome-tiff,Segmentation masks/label images are ome-tiff; per-object feature tables are csv; both are standard Level 3 products
+histology,,Level 4,csv,Summary measurements/statistics as csv
+calcium imaging,,Level 1,ome-tiff,Image time series as OME-TIFF
+calcium imaging,,Level 2,ome-tiff,Motion-corrected stacks as OME-TIFF
+calcium imaging,,Level 3,csv,ROI fluorescence traces as csv
+calcium imaging,,Level 4,csv,Event rates/summary statistics as csv
+high content screen,,Level 1,ome-tiff,Plate images as OME-TIFF
+high content screen,,Level 2,ome-tiff,Illumination-corrected images as OME-TIFF
+high content screen,,Level 3,csv; ome-tiff,Per-cell/well feature tables (csv) and segmentation masks (ome-tiff)
+high content screen,,Level 4,csv,Aggregated well/compound profiles as csv
+mass spectrometry,,Level 1,mzML,Open HUPO-PSI standard replacing vendor raw files
+mass spectrometry,,Level 2,mzML,Peak-picked/calibrated spectra remain mzML
+mass spectrometry,,Level 3,tsv,Identification/quantification tables as tsv
+mass spectrometry,,Level 4,tsv,Differential abundance tables as tsv
+liquid chromatography/mass spectrometry,,Level 1,mzML,Open HUPO-PSI standard replacing vendor raw files
+liquid chromatography/mass spectrometry,,Level 2,mzML,Peak-picked/calibrated spectra remain mzML
+liquid chromatography/mass spectrometry,,Level 3,tsv,Identification/quantification tables as tsv
+liquid chromatography/mass spectrometry,,Level 4,tsv,Differential abundance tables as tsv
+flow cytometry,,Level 1,fcs,FCS is the ISAC standard
+flow cytometry,,Level 2,fcs,Compensated/gated events stay FCS
+flow cytometry,,Level 3,csv,Population counts/MFI tables as csv
+flow cytometry,,Level 4,csv,Summary statistics as csv
+flow cytometry,,Any,fcs,FCS is the ISAC standard
+ELISA,,Any,csv,Plate readouts as plain tabular csv
+Luminex,,Any,csv,Bead-assay readouts as csv
+cell viability assay,,Any,csv,Plate readouts as csv
+small molecule library screen,,Any,csv,Compound-by-readout tables as csv
+pharmacokinetic ADME assay,,Any,csv,Concentration-time and parameter tables as csv
+clinical data,,Any,csv,Tabular clinical data as csv
+multi-electrode array,,Any,NWB,Neurodata Without Borders is the community standard for electrophysiology
+in silico synthesis,,Any,csv; Github Repo,Synthetic output tables (csv) and the generating code (Github Repo); not keyed on a single product
+,gene expression,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+,gene expression,Level 2,bam,Aligned reads as BAM
+,gene expression,Any,tsv,Expression matrices as tsv
+,quantified gene expression,Any,tsv,Quantified matrices as tsv
+,count matrix,Any,tsv,Count matrices as tsv
+,chromatin activity,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+,chromatin activity,Level 2,bam,Aligned reads as BAM
+,chromatin activity,Any,bed narrowPeak,Peak calls as bed narrowPeak
+,genomic variants,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
+,genomic variants,Level 2,bam,Aligned reads as BAM
+,genomic variants,Any,vcf,Variant calls as VCF
+,raw reads,Any,fastq,Raw reads: FASTQ is the universal open interchange format
+,aligned reads,Any,bam,Aligned reads as BAM
+,image,Level 1,ome-tiff,OME-TIFF open image standard
+,image,Level 2,ome-tiff,OME-TIFF open image standard
+,image,Level 3,csv; ome-tiff,Feature tables (csv) and masks (ome-tiff)
+,image,Level 4,csv,Summary tables as csv
+,image,Any,ome-tiff,OME-TIFF open image standard
+,mask image,Any,ome-tiff,OME-TIFF open image standard
+,reference image,Any,ome-tiff,OME-TIFF open image standard
+,volume,Any,ome-tiff,OME-TIFF open image standard
+,cellular physiology,Any,csv,Tabular measurements as csv
+,drug screen,Any,csv,Compound-by-readout tables as csv
+,immunoassay,Any,csv,Assay readouts as csv
+,proteomics,Level 1,mzML,Open HUPO-PSI standard
+,proteomics,Level 2,mzML,Processed spectra remain mzML
+,proteomics,Level 3,tsv,Quant tables as tsv
+,proteomics,Level 4,tsv,Differential tables as tsv
+,proteomics,Any,mzML,Open HUPO-PSI standard
+,mass spectrometry data,Level 1,mzML,Open HUPO-PSI standard
+,mass spectrometry data,Level 2,mzML,Processed spectra remain mzML
+,mass spectrometry data,Level 3,tsv,Quant tables as tsv
+,mass spectrometry data,Level 4,tsv,Differential tables as tsv
+,mass spectrometry data,Any,mzML,Open HUPO-PSI standard
+,metabolomics,Level 1,mzML,Open HUPO-PSI standard
+,metabolomics,Level 2,mzML,Processed spectra remain mzML
+,metabolomics,Level 3,tsv,Quant tables as tsv
+,metabolomics,Level 4,tsv,Differential tables as tsv
+,metabolomics,Any,mzML,Open HUPO-PSI standard
+,clinical,Any,csv,Tabular clinical data as csv
+,electrophysiology,Any,NWB,Neurodata Without Borders standard
+,pharmacokinetics,Any,csv,Concentration-time tables as csv
+,network,Any,tsv,Edge/node lists as tsv (enum has no graph-specific format)
+,morphology parameter,Any,csv,Parameter tables as csv
+,characteristic,Any,csv,Characterization tables as csv
+,model,Any,Github Repo,Versioned open code repository (docker image acceptable as declared alternative but not co-canonical)
+,report,Any,pdf,PDF for reports
+,data index,Any,json,Machine-readable json index
+,text data,Any,txt,Plain text

@@ -8,3 +8,6 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .DS_Store
+
+# Claude Code agent worktrees
+.claude/worktrees/

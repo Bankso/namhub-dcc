@@ -1,0 +1,5 @@
+Assay,DCC,SchemaName,SchemaURL,IsFallback,Rationale
+RNA-seq,NF,RNASeqTemplate,https://example.org/RNASeqTemplate.json,No,test
+Clinical data,NF,ClinicalAssayTemplate,https://example.org/ClinicalAssayTemplate.json,No,test
+Atomic force microscopy,NF,MaterialScienceAssayTemplate,https://example.org/MaterialScienceAssayTemplate.json,Yes,test
+Mass spectrometry,NF,MassSpecAssayTemplate,https://example.org/MassSpecAssayTemplate.json,No,test

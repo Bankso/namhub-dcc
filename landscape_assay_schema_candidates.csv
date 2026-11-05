@@ -1,0 +1,395 @@
+Assay,ProcessingLevel,Namespace,Organization,SchemaName,SchemaVersion,SchemaURI,IsPreferred,IsFallback,MatchBasis,Rationale
+3D confocal imaging,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+3D confocal imaging,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+3D confocal imaging,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+3D confocal imaging,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+3D confocal imaging,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+3D confocal imaging,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+3D confocal imaging,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+3D confocal imaging,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+3D confocal imaging,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+ATAC-seq,Any,NF,org.synapse.nf,epigenomicsassaytemplate,12.4.0,org.synapse.nf-epigenomicsassaytemplate-12.4.0,No,No,modality,NF epigenomics sequencing template used for chromatin accessibility
+ATAC-seq,Any,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,Yes,No,assay-specific,ADKP ATAC-seq assay template
+ATAC-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+ATAC-seq,Level 1,NF,org.synapse.nf,epigenomicsassaytemplate,12.4.0,org.synapse.nf-epigenomicsassaytemplate-12.4.0,No,No,modality,NF epigenomics sequencing template used for chromatin accessibility
+ATAC-seq,Level 1,MC2,MC2Center,SequencingLevel1,14.1.0,MC2Center-SequencingLevel1-14.1.0,No,No,modality,MC2 generic sequencing data
+ATAC-seq,Level 1,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,Yes,No,assay-specific,ADKP ATAC-seq assay template
+ATAC-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+ATAC-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+ATAC-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,Yes,No,modality,MC2 generic sequencing data
+ATAC-seq,Level 2,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP ATAC-seq assay template
+ATAC-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+ATAC-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,Yes,No,modality,MC2 generic sequencing data
+ATAC-seq,Level 3,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP ATAC-seq assay template
+ATAC-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+ATAC-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+ATAC-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,Yes,No,modality,NF merged multi-sample data template (explicitly level-4)
+ATAC-seq,Level 4,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP ATAC-seq assay template
+ATAC-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+atomic force microscopy,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,Yes,fallback,NF microscopy template is optical-oriented; closest available
+atomic force microscopy,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+atomic force microscopy,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+atomic force microscopy,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+atomic force microscopy,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+atomic force microscopy,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+atomic force microscopy,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+atomic force microscopy,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+atomic force microscopy,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+brightfield microscopy,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+brightfield microscopy,Any,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+brightfield microscopy,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+brightfield microscopy,Level 1,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+brightfield microscopy,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+brightfield microscopy,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+brightfield microscopy,Level 2,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+brightfield microscopy,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+brightfield microscopy,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+brightfield microscopy,Level 3,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+brightfield microscopy,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+brightfield microscopy,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+brightfield microscopy,Level 4,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+brightfield microscopy,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+calcium imaging,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+calcium imaging,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+calcium imaging,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+calcium imaging,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+calcium imaging,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+calcium imaging,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+calcium imaging,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+calcium imaging,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+calcium imaging,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+cell viability assay,Any,NF,org.synapse.nf,platebasedreporterassaytemplate,12.4.0,org.synapse.nf-platebasedreporterassaytemplate-12.4.0,Yes,No,modality,NF plate-based reporter assay template used for viability readouts
+clinical data,Any,NF,org.synapse.nf,clinicalassaytemplate,12.4.0,org.synapse.nf-clinicalassaytemplate-12.4.0,Yes,No,assay-specific,NF individual-level tabular clinical data template
+clinical data,Any,HTAN2,HTAN2Organization,Diagnosis,2.0.0,HTAN2Organization-Diagnosis-2.0.0,No,No,assay-specific,HTAN2 clinical diagnosis record schema
+clinical data,Any,ELITE,sage.schemas.elite,AssayPhenotypeHumanTemplate,0.3.1,sage.schemas.elite-AssayPhenotypeHumanTemplate-0.3.1,No,No,modality,ELITE human phenotype template
+clinical data,Any,ALS,ampals.schemas,ClinicalFile,0.0.4,ampals.schemas-ClinicalFile-0.0.4,No,No,assay-specific,ALS clinical data file template
+confocal microscopy,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+confocal microscopy,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+confocal microscopy,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+confocal microscopy,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+confocal microscopy,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+confocal microscopy,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+confocal microscopy,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+confocal microscopy,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+confocal microscopy,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+electron microscopy,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,Yes,fallback,NF microscopy template is optical-oriented; closest available
+electron microscopy,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+electron microscopy,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+electron microscopy,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+electron microscopy,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+electron microscopy,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+electron microscopy,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+electron microscopy,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,Yes,fallback,NF microscopy template is optical-oriented; closest available
+electron microscopy,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,Yes,fallback,MC2 imaging schema is optical-oriented; closest available
+ELISA,Any,NF,org.synapse.nf,proteinarraytemplate,12.4.0,org.synapse.nf-proteinarraytemplate-12.4.0,Yes,No,modality,NF array and immuno-based proteomics template
+ELISA,Any,ADKP,sage.schemas.ad,AssayImmunoassayMetadataTemplate,2.1.0,sage.schemas.ad-AssayImmunoassayMetadataTemplate-2.1.0,No,No,modality,ADKP immunoassay template
+flow cytometry,Any,NF,org.synapse.nf,flowcytometrytemplate,12.4.0,org.synapse.nf-flowcytometrytemplate-12.4.0,Yes,No,assay-specific,NF flow cytometry template
+fluorescence microscopy assay,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+fluorescence microscopy assay,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+fluorescence microscopy assay,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+fluorescence microscopy assay,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+fluorescence microscopy assay,Level 2,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel2,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel2-2.0.0,Yes,No,modality,HTAN2 multiplex fluorescence microscopy data
+fluorescence microscopy assay,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,No,No,modality,MC2 imaging data at this level
+fluorescence microscopy assay,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+fluorescence microscopy assay,Level 3,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel3,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel3-2.0.0,Yes,No,modality,HTAN2 multiplex fluorescence microscopy data
+fluorescence microscopy assay,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,No,No,modality,MC2 imaging data at this level
+fluorescence microscopy assay,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+fluorescence microscopy assay,Level 4,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel4,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel4-2.0.0,Yes,No,modality,HTAN2 multiplex fluorescence microscopy data
+fluorescence microscopy assay,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,No,No,modality,MC2 imaging data at this level
+high content screen,Any,NF,org.synapse.nf,celltissuephenotypingtemplate,12.4.0,org.synapse.nf-celltissuephenotypingtemplate-12.4.0,Yes,No,modality,NF cell phenotyping template with compound and condition fields
+high content screen,Level 1,NF,org.synapse.nf,celltissuephenotypingtemplate,12.4.0,org.synapse.nf-celltissuephenotypingtemplate-12.4.0,No,No,modality,NF cell phenotyping template with compound and condition fields
+high content screen,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+high content screen,Level 2,NF,org.synapse.nf,celltissuephenotypingtemplate,12.4.0,org.synapse.nf-celltissuephenotypingtemplate-12.4.0,No,No,modality,NF cell phenotyping template with compound and condition fields
+high content screen,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+high content screen,Level 3,NF,org.synapse.nf,celltissuephenotypingtemplate,12.4.0,org.synapse.nf-celltissuephenotypingtemplate-12.4.0,No,No,modality,NF cell phenotyping template with compound and condition fields
+high content screen,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+high content screen,Level 4,NF,org.synapse.nf,celltissuephenotypingtemplate,12.4.0,org.synapse.nf-celltissuephenotypingtemplate-12.4.0,No,No,modality,NF cell phenotyping template with compound and condition fields
+high content screen,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+histology,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+histology,Any,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,Yes,No,assay-specific,HTAN2 digital pathology imaging container
+histology,Any,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+histology,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+histology,Level 1,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,Yes,No,assay-specific,HTAN2 digital pathology imaging container
+histology,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,No,No,modality,MC2 imaging data at this level
+histology,Level 1,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+histology,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+histology,Level 2,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,assay-specific,HTAN2 digital pathology imaging container
+histology,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+histology,Level 2,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+histology,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+histology,Level 3,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,assay-specific,HTAN2 digital pathology imaging container
+histology,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+histology,Level 3,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+histology,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+histology,Level 4,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,assay-specific,HTAN2 digital pathology imaging container
+histology,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+histology,Level 4,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+immunofluorescence,Any,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,Yes,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunofluorescence,Level 1,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,Yes,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunofluorescence,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,No,No,modality,MC2 imaging data at this level
+immunofluorescence,Level 2,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunofluorescence,Level 2,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel2,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel2-2.0.0,Yes,No,assay-specific,HTAN2 multiplex immunofluorescence microscopy data
+immunofluorescence,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,No,No,modality,MC2 imaging data at this level
+immunofluorescence,Level 3,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunofluorescence,Level 3,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel3,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel3-2.0.0,Yes,No,assay-specific,HTAN2 multiplex immunofluorescence microscopy data
+immunofluorescence,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,No,No,modality,MC2 imaging data at this level
+immunofluorescence,Level 4,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunofluorescence,Level 4,HTAN2,HTAN2Organization,MultiplexMicroscopyLevel4,2.0.0,HTAN2Organization-MultiplexMicroscopyLevel4-2.0.0,Yes,No,assay-specific,HTAN2 multiplex immunofluorescence microscopy data
+immunofluorescence,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,No,No,modality,MC2 imaging data at this level
+immunohistochemistry,Any,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,Yes,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunohistochemistry,Any,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+immunohistochemistry,Any,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+immunohistochemistry,Level 1,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,Yes,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunohistochemistry,Level 1,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+immunohistochemistry,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,No,No,modality,MC2 imaging data at this level
+immunohistochemistry,Level 1,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+immunohistochemistry,Level 2,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunohistochemistry,Level 2,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+immunohistochemistry,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+immunohistochemistry,Level 2,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+immunohistochemistry,Level 3,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunohistochemistry,Level 3,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+immunohistochemistry,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+immunohistochemistry,Level 3,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+immunohistochemistry,Level 4,NF,org.synapse.nf,immunomicroscopytemplate,12.4.0,org.synapse.nf-immunomicroscopytemplate-12.4.0,No,No,assay-specific,NF template for immunofluorescence or immunohistochemistry images
+immunohistochemistry,Level 4,HTAN2,HTAN2Organization,DigitalPathologyData,2.0.0,HTAN2Organization-DigitalPathologyData-2.0.0,No,No,modality,HTAN2 digital pathology imaging container
+immunohistochemistry,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+immunohistochemistry,Level 4,ADKP,sage.schemas.ad,NeuropathMetadataTemplate,2.1.0,sage.schemas.ad-NeuropathMetadataTemplate-2.1.0,No,No,modality,ADKP neuropathology slide-based template
+in silico synthesis,Any,NF,org.synapse.nf,analysisresulttemplate,12.4.0,org.synapse.nf-analysisresulttemplate-12.4.0,Yes,Yes,fallback,NF analysis output template; no in silico synthesis template exists
+in silico synthesis,Any,ELITE,sage.schemas.elite,AnalysisResultsMetadataTemplate,0.3.1,sage.schemas.elite-AnalysisResultsMetadataTemplate-0.3.1,No,Yes,fallback,ELITE analysis results template; no in silico synthesis template exists
+liquid chromatography/mass spectrometry,Any,NF,org.synapse.nf,massspecassaytemplate,12.4.0,org.synapse.nf-massspecassaytemplate-12.4.0,Yes,No,assay-specific,NF mass spec proteomics template
+liquid chromatography/mass spectrometry,Any,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+liquid chromatography/mass spectrometry,Any,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+liquid chromatography/mass spectrometry,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+liquid chromatography/mass spectrometry,Level 1,NF,org.synapse.nf,massspecassaytemplate,12.4.0,org.synapse.nf-massspecassaytemplate-12.4.0,Yes,No,assay-specific,NF mass spec proteomics template
+liquid chromatography/mass spectrometry,Level 1,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+liquid chromatography/mass spectrometry,Level 1,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+liquid chromatography/mass spectrometry,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+liquid chromatography/mass spectrometry,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,Yes,No,modality,NF quantified expression template (one file per sample)
+liquid chromatography/mass spectrometry,Level 3,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+liquid chromatography/mass spectrometry,Level 3,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+liquid chromatography/mass spectrometry,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+liquid chromatography/mass spectrometry,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+liquid chromatography/mass spectrometry,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,Yes,No,modality,NF merged multi-sample data template (explicitly level-4)
+liquid chromatography/mass spectrometry,Level 4,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+liquid chromatography/mass spectrometry,Level 4,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+liquid chromatography/mass spectrometry,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+live imaging,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+live imaging,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+live imaging,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+live imaging,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+live imaging,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+live imaging,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+live imaging,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+live imaging,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+live imaging,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+Luminex,Any,NF,org.synapse.nf,proteinarraytemplate,12.4.0,org.synapse.nf-proteinarraytemplate-12.4.0,Yes,No,modality,NF array and immuno-based proteomics template
+Luminex,Any,ADKP,sage.schemas.ad,AssayImmunoassayMetadataTemplate,2.1.0,sage.schemas.ad-AssayImmunoassayMetadataTemplate-2.1.0,No,No,modality,ADKP immunoassay template
+mass spectrometry,Any,NF,org.synapse.nf,massspecassaytemplate,12.4.0,org.synapse.nf-massspecassaytemplate-12.4.0,Yes,No,assay-specific,NF mass spec proteomics template
+mass spectrometry,Any,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+mass spectrometry,Any,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+mass spectrometry,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+mass spectrometry,Level 1,NF,org.synapse.nf,massspecassaytemplate,12.4.0,org.synapse.nf-massspecassaytemplate-12.4.0,Yes,No,assay-specific,NF mass spec proteomics template
+mass spectrometry,Level 1,HTAN2,HTAN2Organization,MassSpectrometryImagingLevel1,2.0.0,HTAN2Organization-MassSpectrometryImagingLevel1-2.0.0,No,Yes,fallback,HTAN2 imaging mass spectrometry; not a general MS template
+mass spectrometry,Level 1,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+mass spectrometry,Level 1,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+mass spectrometry,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+mass spectrometry,Level 2,HTAN2,HTAN2Organization,MassSpectrometryImagingLevel2,2.0.0,HTAN2Organization-MassSpectrometryImagingLevel2-2.0.0,Yes,Yes,fallback,HTAN2 imaging mass spectrometry; not a general MS template
+mass spectrometry,Level 2,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+mass spectrometry,Level 2,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+mass spectrometry,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+mass spectrometry,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,Yes,No,modality,NF quantified expression template (one file per sample)
+mass spectrometry,Level 3,HTAN2,HTAN2Organization,MassSpectrometryImagingLevel3,2.0.0,HTAN2Organization-MassSpectrometryImagingLevel3-2.0.0,No,Yes,fallback,HTAN2 imaging mass spectrometry; not a general MS template
+mass spectrometry,Level 3,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+mass spectrometry,Level 3,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+mass spectrometry,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+mass spectrometry,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+mass spectrometry,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,Yes,No,modality,NF merged multi-sample data template (explicitly level-4)
+mass spectrometry,Level 4,HTAN2,HTAN2Organization,MassSpectrometryImagingLevel4,2.0.0,HTAN2Organization-MassSpectrometryImagingLevel4-2.0.0,No,Yes,fallback,HTAN2 imaging mass spectrometry; not a general MS template
+mass spectrometry,Level 4,ELITE,sage.schemas.elite,AssayProteomicsTemplate,0.3.1,sage.schemas.elite-AssayProteomicsTemplate-0.3.1,No,No,modality,ELITE proteomics template
+mass spectrometry,Level 4,ADKP,sage.schemas.ad,AssayProteomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssayProteomicsMetadataTemplate-2.1.0,No,No,modality,ADKP proteomics assay template
+mass spectrometry,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering proteomic data
+multi-electrode array,Any,NF,org.synapse.nf,electrophysiologyassaytemplate,12.4.0,org.synapse.nf-electrophysiologyassaytemplate-12.4.0,Yes,No,modality,NF electrophysiology template for electrical recordings
+pharmacokinetic ADME assay,Any,NF,org.synapse.nf,pharmacokineticsassaytemplate,12.4.0,org.synapse.nf-pharmacokineticsassaytemplate-12.4.0,Yes,No,assay-specific,NF pharmacokinetics assay template
+RNA-seq,Any,NF,org.synapse.nf,rnaseqtemplate,12.4.0,org.synapse.nf-rnaseqtemplate-12.4.0,Yes,No,assay-specific,NF template for bulk RNA-seq raw data
+RNA-seq,Any,ELITE,sage.schemas.elite,AssayRNAseqTemplate,0.3.1,sage.schemas.elite-AssayRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE bulk RNA-seq assay template
+RNA-seq,Any,ADKP,sage.schemas.ad,AssayRnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayRnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP bulk RNA-seq assay template
+RNA-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+RNA-seq,Level 1,NF,org.synapse.nf,rnaseqtemplate,12.4.0,org.synapse.nf-rnaseqtemplate-12.4.0,No,No,assay-specific,NF template for bulk RNA-seq raw data
+RNA-seq,Level 1,MC2,MC2Center,SequencingRNALevel1,14.1.0,MC2Center-SequencingRNALevel1-14.1.0,Yes,No,assay-specific,MC2 unprocessed RNA sequencing data
+RNA-seq,Level 1,ELITE,sage.schemas.elite,AssayRNAseqTemplate,0.3.1,sage.schemas.elite-AssayRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE bulk RNA-seq assay template
+RNA-seq,Level 1,ADKP,sage.schemas.ad,AssayRnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayRnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP bulk RNA-seq assay template
+RNA-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+RNA-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+RNA-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,Yes,No,modality,MC2 generic aligned sequencing data
+RNA-seq,Level 2,ELITE,sage.schemas.elite,AssayRNAseqTemplate,0.3.1,sage.schemas.elite-AssayRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE bulk RNA-seq assay template
+RNA-seq,Level 2,ADKP,sage.schemas.ad,AssayRnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayRnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP bulk RNA-seq assay template
+RNA-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+RNA-seq,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,No,No,modality,NF quantified expression template (one file per sample)
+RNA-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,Yes,No,modality,MC2 generic aligned sequencing data
+RNA-seq,Level 3,ELITE,sage.schemas.elite,AssayRNAseqTemplate,0.3.1,sage.schemas.elite-AssayRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE bulk RNA-seq assay template
+RNA-seq,Level 3,ADKP,sage.schemas.ad,AssayRnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayRnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP bulk RNA-seq assay template
+RNA-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+RNA-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+RNA-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,Yes,No,modality,NF merged multi-sample data template (explicitly level-4)
+RNA-seq,Level 4,ELITE,sage.schemas.elite,AssayRNAseqTemplate,0.3.1,sage.schemas.elite-AssayRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE bulk RNA-seq assay template
+RNA-seq,Level 4,ADKP,sage.schemas.ad,AssayRnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayRnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP bulk RNA-seq assay template
+RNA-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+second harmonic generation imaging,Any,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,Yes,No,modality,NF microscopy imaging template
+second harmonic generation imaging,Level 1,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+second harmonic generation imaging,Level 1,MC2,MC2Center,ImagingLevel1,14.1.0,MC2Center-ImagingLevel1-14.1.0,Yes,No,modality,MC2 imaging data at this level
+second harmonic generation imaging,Level 2,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+second harmonic generation imaging,Level 2,MC2,MC2Center,ImagingLevel2,14.1.0,MC2Center-ImagingLevel2-14.1.0,Yes,No,modality,MC2 imaging data at this level
+second harmonic generation imaging,Level 3,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+second harmonic generation imaging,Level 3,MC2,MC2Center,ImagingLevel3Image,14.1.0,MC2Center-ImagingLevel3Image-14.1.0,Yes,No,modality,MC2 imaging data at this level
+second harmonic generation imaging,Level 4,NF,org.synapse.nf,microscopyassaytemplate,12.4.0,org.synapse.nf-microscopyassaytemplate-12.4.0,No,No,modality,NF microscopy imaging template
+second harmonic generation imaging,Level 4,MC2,MC2Center,ImagingLevel4,14.1.0,MC2Center-ImagingLevel4-14.1.0,Yes,No,modality,MC2 imaging data at this level
+single cell ATAC-seq,Any,NF,org.synapse.nf,scsequencingassaytemplate,12.4.0,org.synapse.nf-scsequencingassaytemplate-12.4.0,Yes,No,modality,NF single-cell sequencing template
+single cell ATAC-seq,Any,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single cell ATAC-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single cell ATAC-seq,Level 1,NF,org.synapse.nf,scsequencingassaytemplate,12.4.0,org.synapse.nf-scsequencingassaytemplate-12.4.0,No,No,modality,NF single-cell sequencing template
+single cell ATAC-seq,Level 1,HTAN2,HTAN2Organization,scATACLevel1,2.0.0,HTAN2Organization-scATACLevel1-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq raw files and metadata
+single cell ATAC-seq,Level 1,MC2,MC2Center,SequencingLevel1,14.1.0,MC2Center-SequencingLevel1-14.1.0,No,No,modality,MC2 generic sequencing data
+single cell ATAC-seq,Level 1,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single cell ATAC-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single cell ATAC-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+single cell ATAC-seq,Level 2,HTAN2,HTAN2Organization,scATACLevel2,2.0.0,HTAN2Organization-scATACLevel2-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq aligned data and QC
+single cell ATAC-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,No,No,modality,MC2 generic sequencing data
+single cell ATAC-seq,Level 2,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single cell ATAC-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single cell ATAC-seq,Level 3,HTAN2,HTAN2Organization,scATACLevel3and4,2.0.0,HTAN2Organization-scATACLevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq peak matrices and fragment files
+single cell ATAC-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,No,No,modality,MC2 generic sequencing data
+single cell ATAC-seq,Level 3,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single cell ATAC-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single cell ATAC-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+single cell ATAC-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,No,No,modality,NF merged multi-sample data template (explicitly level-4)
+single cell ATAC-seq,Level 4,HTAN2,HTAN2Organization,scATACLevel3and4,2.0.0,HTAN2Organization-scATACLevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq peak matrices and fragment files
+single cell ATAC-seq,Level 4,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single cell ATAC-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-cell RNA-seq,Any,NF,org.synapse.nf,scrnaseqtemplate,12.4.0,org.synapse.nf-scrnaseqtemplate-12.4.0,Yes,No,assay-specific,NF template for single-cell RNA-seq raw data
+single-cell RNA-seq,Any,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-cell RNA-seq,Any,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-cell RNA-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-cell RNA-seq,Level 1,NF,org.synapse.nf,scrnaseqtemplate,12.4.0,org.synapse.nf-scrnaseqtemplate-12.4.0,No,No,assay-specific,NF template for single-cell RNA-seq raw data
+single-cell RNA-seq,Level 1,HTAN2,HTAN2Organization,scRNALevel1,2.0.0,HTAN2Organization-scRNALevel1-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq raw files and metadata
+single-cell RNA-seq,Level 1,MC2,MC2Center,SequencingRNALevel1,14.1.0,MC2Center-SequencingRNALevel1-14.1.0,No,No,modality,MC2 unprocessed RNA sequencing data
+single-cell RNA-seq,Level 1,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-cell RNA-seq,Level 1,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-cell RNA-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-cell RNA-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+single-cell RNA-seq,Level 2,HTAN2,HTAN2Organization,scRNALevel2,2.0.0,HTAN2Organization-scRNALevel2-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq workflow and processing metadata
+single-cell RNA-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,No,No,modality,MC2 generic aligned sequencing data
+single-cell RNA-seq,Level 2,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-cell RNA-seq,Level 2,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-cell RNA-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-cell RNA-seq,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,No,No,modality,NF quantified expression template (one file per sample)
+single-cell RNA-seq,Level 3,HTAN2,HTAN2Organization,scRNALevel3and4,2.0.0,HTAN2Organization-scRNALevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq expression files and cell annotations
+single-cell RNA-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,No,No,modality,MC2 generic aligned sequencing data
+single-cell RNA-seq,Level 3,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-cell RNA-seq,Level 3,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-cell RNA-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-cell RNA-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+single-cell RNA-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,No,No,modality,NF merged multi-sample data template (explicitly level-4)
+single-cell RNA-seq,Level 4,HTAN2,HTAN2Organization,scRNALevel3and4,2.0.0,HTAN2Organization-scRNALevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq expression files and cell annotations
+single-cell RNA-seq,Level 4,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-cell RNA-seq,Level 4,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-cell RNA-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus ATAC-seq,Any,NF,org.synapse.nf,scsequencingassaytemplate,12.4.0,org.synapse.nf-scsequencingassaytemplate-12.4.0,Yes,No,modality,NF single-cell sequencing template
+single-nucleus ATAC-seq,Any,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single-nucleus ATAC-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus ATAC-seq,Level 1,NF,org.synapse.nf,scsequencingassaytemplate,12.4.0,org.synapse.nf-scsequencingassaytemplate-12.4.0,No,No,modality,NF single-cell sequencing template
+single-nucleus ATAC-seq,Level 1,HTAN2,HTAN2Organization,scATACLevel1,2.0.0,HTAN2Organization-scATACLevel1-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq raw files and metadata
+single-nucleus ATAC-seq,Level 1,MC2,MC2Center,SequencingLevel1,14.1.0,MC2Center-SequencingLevel1-14.1.0,No,No,modality,MC2 generic sequencing data
+single-nucleus ATAC-seq,Level 1,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single-nucleus ATAC-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus ATAC-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+single-nucleus ATAC-seq,Level 2,HTAN2,HTAN2Organization,scATACLevel2,2.0.0,HTAN2Organization-scATACLevel2-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq aligned data and QC
+single-nucleus ATAC-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,No,No,modality,MC2 generic sequencing data
+single-nucleus ATAC-seq,Level 2,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single-nucleus ATAC-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus ATAC-seq,Level 3,HTAN2,HTAN2Organization,scATACLevel3and4,2.0.0,HTAN2Organization-scATACLevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq peak matrices and fragment files
+single-nucleus ATAC-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,No,No,modality,MC2 generic sequencing data
+single-nucleus ATAC-seq,Level 3,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single-nucleus ATAC-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus ATAC-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+single-nucleus ATAC-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,No,No,modality,NF merged multi-sample data template (explicitly level-4)
+single-nucleus ATAC-seq,Level 4,HTAN2,HTAN2Organization,scATACLevel3and4,2.0.0,HTAN2Organization-scATACLevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scATAC-seq peak matrices and fragment files
+single-nucleus ATAC-seq,Level 4,ADKP,sage.schemas.ad,AssayATACSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayATACSeqMetadataTemplate-2.1.0,No,No,modality,ADKP bulk ATAC-seq template; no single-cell variant
+single-nucleus ATAC-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus RNA-seq,Any,NF,org.synapse.nf,scrnaseqtemplate,12.4.0,org.synapse.nf-scrnaseqtemplate-12.4.0,Yes,No,assay-specific,NF template for single-cell RNA-seq raw data
+single-nucleus RNA-seq,Any,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-nucleus RNA-seq,Any,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-nucleus RNA-seq,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus RNA-seq,Level 1,NF,org.synapse.nf,scrnaseqtemplate,12.4.0,org.synapse.nf-scrnaseqtemplate-12.4.0,No,No,assay-specific,NF template for single-cell RNA-seq raw data
+single-nucleus RNA-seq,Level 1,HTAN2,HTAN2Organization,scRNALevel1,2.0.0,HTAN2Organization-scRNALevel1-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq raw files and metadata
+single-nucleus RNA-seq,Level 1,MC2,MC2Center,SequencingRNALevel1,14.1.0,MC2Center-SequencingRNALevel1-14.1.0,No,No,modality,MC2 unprocessed RNA sequencing data
+single-nucleus RNA-seq,Level 1,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-nucleus RNA-seq,Level 1,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-nucleus RNA-seq,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus RNA-seq,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+single-nucleus RNA-seq,Level 2,HTAN2,HTAN2Organization,scRNALevel2,2.0.0,HTAN2Organization-scRNALevel2-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq workflow and processing metadata
+single-nucleus RNA-seq,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,No,No,modality,MC2 generic aligned sequencing data
+single-nucleus RNA-seq,Level 2,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-nucleus RNA-seq,Level 2,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-nucleus RNA-seq,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus RNA-seq,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,No,No,modality,NF quantified expression template (one file per sample)
+single-nucleus RNA-seq,Level 3,HTAN2,HTAN2Organization,scRNALevel3and4,2.0.0,HTAN2Organization-scRNALevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq expression files and cell annotations
+single-nucleus RNA-seq,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,No,No,modality,MC2 generic aligned sequencing data
+single-nucleus RNA-seq,Level 3,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-nucleus RNA-seq,Level 3,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-nucleus RNA-seq,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+single-nucleus RNA-seq,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+single-nucleus RNA-seq,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,No,No,modality,NF merged multi-sample data template (explicitly level-4)
+single-nucleus RNA-seq,Level 4,HTAN2,HTAN2Organization,scRNALevel3and4,2.0.0,HTAN2Organization-scRNALevel3and4-2.0.0,Yes,No,assay-specific,HTAN2 scRNA-seq expression files and cell annotations
+single-nucleus RNA-seq,Level 4,ELITE,sage.schemas.elite,AssayScRNAseqTemplate,0.3.1,sage.schemas.elite-AssayScRNAseqTemplate-0.3.1,No,No,assay-specific,ELITE scRNA-seq assay template
+single-nucleus RNA-seq,Level 4,ADKP,sage.schemas.ad,AssayScrnaSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayScrnaSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP scRNA-seq assay template
+single-nucleus RNA-seq,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+small molecule library screen,Any,NF,org.synapse.nf,platebasedreporterassaytemplate,12.4.0,org.synapse.nf-platebasedreporterassaytemplate-12.4.0,Yes,Yes,fallback,NF plate-based assay template with compound fields; closest available
+spatial transcriptomics,Any,NF,org.synapse.nf,spatialtranscriptomicssequencingtemplate,12.4.0,org.synapse.nf-spatialtranscriptomicssequencingtemplate-12.4.0,Yes,No,assay-specific,NF spatial transcriptomics sequencing and expression files
+spatial transcriptomics,Any,ADKP,sage.schemas.ad,AssaySpatialTranscriptomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssaySpatialTranscriptomicsMetadataTemplate-2.1.0,No,No,assay-specific,ADKP spatial transcriptomics assay template
+spatial transcriptomics,Level 1,NF,org.synapse.nf,spatialtranscriptomicssequencingtemplate,12.4.0,org.synapse.nf-spatialtranscriptomicssequencingtemplate-12.4.0,No,No,assay-specific,NF spatial transcriptomics sequencing and expression files
+spatial transcriptomics,Level 1,HTAN2,HTAN2Organization,SpatialLevel1,2.0.0,HTAN2Organization-SpatialLevel1-2.0.0,Yes,No,assay-specific,HTAN2 spatial omics data bundle
+spatial transcriptomics,Level 1,MC2,MC2Center,VisiumRNALevel1,14.1.0,MC2Center-VisiumRNALevel1-14.1.0,No,No,assay-specific,MC2 Visium spatial RNA-seq data
+spatial transcriptomics,Level 1,ADKP,sage.schemas.ad,AssaySpatialTranscriptomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssaySpatialTranscriptomicsMetadataTemplate-2.1.0,No,No,assay-specific,ADKP spatial transcriptomics assay template
+spatial transcriptomics,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+spatial transcriptomics,Level 2,NF,org.synapse.nf,spatialtranscriptomicssequencingtemplate,12.4.0,org.synapse.nf-spatialtranscriptomicssequencingtemplate-12.4.0,No,No,assay-specific,NF spatial transcriptomics sequencing and expression files
+spatial transcriptomics,Level 2,MC2,MC2Center,VisiumRNALevel2,14.1.0,MC2Center-VisiumRNALevel2-14.1.0,Yes,No,assay-specific,MC2 Visium spatial RNA-seq data
+spatial transcriptomics,Level 2,ADKP,sage.schemas.ad,AssaySpatialTranscriptomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssaySpatialTranscriptomicsMetadataTemplate-2.1.0,No,No,assay-specific,ADKP spatial transcriptomics assay template
+spatial transcriptomics,Level 3,NF,org.synapse.nf,processedexpressiontemplate,12.4.0,org.synapse.nf-processedexpressiontemplate-12.4.0,No,No,modality,NF quantified expression template (one file per sample)
+spatial transcriptomics,Level 3,NF,org.synapse.nf,spatialtranscriptomicssequencingtemplate,12.4.0,org.synapse.nf-spatialtranscriptomicssequencingtemplate-12.4.0,No,No,assay-specific,NF spatial transcriptomics sequencing and expression files
+spatial transcriptomics,Level 3,HTAN2,HTAN2Organization,SpatialLevel3,2.0.0,HTAN2Organization-SpatialLevel3-2.0.0,Yes,No,assay-specific,HTAN2 spatial omics data bundle
+spatial transcriptomics,Level 3,MC2,MC2Center,VisiumRNALevel3,14.1.0,MC2Center-VisiumRNALevel3-14.1.0,No,No,assay-specific,MC2 Visium spatial RNA-seq data
+spatial transcriptomics,Level 3,ADKP,sage.schemas.ad,AssaySpatialTranscriptomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssaySpatialTranscriptomicsMetadataTemplate-2.1.0,No,No,assay-specific,ADKP spatial transcriptomics assay template
+spatial transcriptomics,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+spatial transcriptomics,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,No,No,modality,NF merged multi-sample data template (explicitly level-4)
+spatial transcriptomics,Level 4,NF,org.synapse.nf,spatialtranscriptomicssequencingtemplate,12.4.0,org.synapse.nf-spatialtranscriptomicssequencingtemplate-12.4.0,No,No,assay-specific,NF spatial transcriptomics sequencing and expression files
+spatial transcriptomics,Level 4,HTAN2,HTAN2Organization,SpatialLevel4,2.0.0,HTAN2Organization-SpatialLevel4-2.0.0,Yes,No,assay-specific,HTAN2 spatial omics data bundle
+spatial transcriptomics,Level 4,MC2,MC2Center,VisiumRNALevel4,14.1.0,MC2Center-VisiumRNALevel4-14.1.0,No,No,assay-specific,MC2 Visium spatial RNA-seq data
+spatial transcriptomics,Level 4,ADKP,sage.schemas.ad,AssaySpatialTranscriptomicsMetadataTemplate,2.1.0,sage.schemas.ad-AssaySpatialTranscriptomicsMetadataTemplate-2.1.0,No,No,assay-specific,ADKP spatial transcriptomics assay template
+whole exome sequencing,Any,NF,org.synapse.nf,westemplate,12.4.0,org.synapse.nf-westemplate-12.4.0,Yes,No,assay-specific,NF template for raw WES data
+whole exome sequencing,Any,ELITE,sage.schemas.elite,AssayWholeGenomeSequencingTemplate,0.3.1,sage.schemas.elite-AssayWholeGenomeSequencingTemplate-0.3.1,No,No,modality,ELITE whole genome template; closest DNA sequencing template
+whole exome sequencing,Any,ADKP,sage.schemas.ad,AssayWholeExomeSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayWholeExomeSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP WES assay template
+whole exome sequencing,Any,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+whole exome sequencing,Level 1,NF,org.synapse.nf,westemplate,12.4.0,org.synapse.nf-westemplate-12.4.0,No,No,assay-specific,NF template for raw WES data
+whole exome sequencing,Level 1,HTAN2,HTAN2Organization,BulkWESLevel1,2.0.0,HTAN2Organization-BulkWESLevel1-2.0.0,Yes,No,assay-specific,HTAN2 bulk WES data at this level
+whole exome sequencing,Level 1,MC2,MC2Center,SequencingLevel1,14.1.0,MC2Center-SequencingLevel1-14.1.0,No,No,modality,MC2 generic sequencing data
+whole exome sequencing,Level 1,ELITE,sage.schemas.elite,AssayWholeGenomeSequencingTemplate,0.3.1,sage.schemas.elite-AssayWholeGenomeSequencingTemplate-0.3.1,No,No,modality,ELITE whole genome template; closest DNA sequencing template
+whole exome sequencing,Level 1,ADKP,sage.schemas.ad,AssayWholeExomeSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayWholeExomeSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP WES assay template
+whole exome sequencing,Level 1,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+whole exome sequencing,Level 2,NF,org.synapse.nf,processedalignedreadstemplate,12.4.0,org.synapse.nf-processedalignedreadstemplate-12.4.0,No,No,modality,NF aligned reads template for sequencing data
+whole exome sequencing,Level 2,HTAN2,HTAN2Organization,BulkWESLevel2,2.0.0,HTAN2Organization-BulkWESLevel2-2.0.0,Yes,No,assay-specific,HTAN2 bulk WES data at this level
+whole exome sequencing,Level 2,MC2,MC2Center,SequencingLevel2,14.1.0,MC2Center-SequencingLevel2-14.1.0,No,No,modality,MC2 generic sequencing data
+whole exome sequencing,Level 2,ELITE,sage.schemas.elite,AssayWholeGenomeSequencingTemplate,0.3.1,sage.schemas.elite-AssayWholeGenomeSequencingTemplate-0.3.1,No,No,modality,ELITE whole genome template; closest DNA sequencing template
+whole exome sequencing,Level 2,ADKP,sage.schemas.ad,AssayWholeExomeSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayWholeExomeSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP WES assay template
+whole exome sequencing,Level 2,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+whole exome sequencing,Level 3,NF,org.synapse.nf,processedvariantcallstemplate,12.4.0,org.synapse.nf-processedvariantcallstemplate-12.4.0,No,No,modality,NF variant calls template (VCF/MAF/CNV)
+whole exome sequencing,Level 3,HTAN2,HTAN2Organization,BulkWESLevel3,2.0.0,HTAN2Organization-BulkWESLevel3-2.0.0,Yes,No,assay-specific,HTAN2 bulk WES data at this level
+whole exome sequencing,Level 3,MC2,MC2Center,SequencingLevel3,14.1.0,MC2Center-SequencingLevel3-14.1.0,No,No,modality,MC2 generic sequencing data
+whole exome sequencing,Level 3,ELITE,sage.schemas.elite,AssayWholeGenomeSequencingTemplate,0.3.1,sage.schemas.elite-AssayWholeGenomeSequencingTemplate-0.3.1,No,No,modality,ELITE whole genome template; closest DNA sequencing template
+whole exome sequencing,Level 3,ADKP,sage.schemas.ad,AssayWholeExomeSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayWholeExomeSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP WES assay template
+whole exome sequencing,Level 3,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data
+whole exome sequencing,Level 4,NF,org.synapse.nf,processedaggregateddatatemplate,12.4.0,org.synapse.nf-processedaggregateddatatemplate-12.4.0,No,No,modality,NF aggregated multi-sample summary template; less specific than merged
+whole exome sequencing,Level 4,NF,org.synapse.nf,processedmergeddatatemplate,12.4.0,org.synapse.nf-processedmergeddatatemplate-12.4.0,Yes,No,modality,NF merged multi-sample data template (explicitly level-4)
+whole exome sequencing,Level 4,ELITE,sage.schemas.elite,AssayWholeGenomeSequencingTemplate,0.3.1,sage.schemas.elite-AssayWholeGenomeSequencingTemplate-0.3.1,No,No,modality,ELITE whole genome template; closest DNA sequencing template
+whole exome sequencing,Level 4,ADKP,sage.schemas.ad,AssayWholeExomeSeqMetadataTemplate,2.1.0,sage.schemas.ad-AssayWholeExomeSeqMetadataTemplate-2.1.0,No,No,assay-specific,ADKP WES assay template
+whole exome sequencing,Level 4,ALS,ampals.schemas,OmicFile,0.0.3,ampals.schemas-OmicFile-0.0.3,No,No,modality,Generic ALS omic file template covering sequencing data

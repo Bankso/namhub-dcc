@@ -1,0 +1,6 @@
+ROW_ID,LandscapeId,StudyName,DatasetName,DatasetGroup,DerivedFrom,DatasetAssay,DatasetCategory,DatasetSpecies,DatasetFileFormat,DatasetProcessingLevel,ExpectedNumberOfSamples,FileRatio,FileRatioUnit,ContextOfUse,Comments
+1,L1,S1,D1,G1,,RNA-seq,gene expression,Homo sapiens,fastq,Level 1,10,2,Files per sample,"[""discovery"",""biomarker""]",
+2,L2,S1,D2,G1,L1,RNA-seq,gene expression,Homo sapiens,csv,Level 3,10,5,Samples per file,,
+3,L3,S1,D3,,,Clinical data,clinical data,Homo sapiens,csv,Not Applicable,20,1,Total files,plain text use,
+4,L4,S2,D4,G2,,Mass spectrometry,proteomics,Mus musculus,raw,Level 1,,1,Files per sample,,
+5,L5,S2,D5,G2,,Zebra assay,gene expression,Mus musculus,h5ad,Level 3,6,3,Files per sample,,
