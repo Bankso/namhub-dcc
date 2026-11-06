@@ -1,12 +1,12 @@
 ---
 name: landscape-summary
-description: Summarize and aggregate NAMHub Landscape RecordSet CSV exports (rows conforming to the Synapse JSON schema NAMhub-Landscape) into a one-row-per-(data type, processing level) summary table across studies (single-cell and single-nucleus assays split from bulk), covering assays, processing levels, file formats, metadata schema types, projected data sensitivity (Open/Registered/Controlled), recommended repository, priority by study breadth, and estimated file counts. Use this whenever the user wants a landscape summary table, to roll up or aggregate landscape CSVs, or asks about data types, processing levels, formats, metadata, sensitivity, repository or priority across landscape studies. Trigger even if the user just hands over one or more landscape CSV exports.
+description: Summarize and aggregate NAMHub Landscape RecordSet CSV exports (rows conforming to the Synapse JSON schema NAMhub-Landscape) into a one-row-per-(data type, assay, processing level) summary table across studies (single-cell and single-nucleus assays split from bulk), covering assays, processing levels, file formats, metadata schema types, projected data sensitivity (Open/Registered/Controlled), recommended repository, priority by study breadth, and estimated file counts. Use this whenever the user wants a landscape summary table, to roll up or aggregate landscape CSVs, or asks about data types, processing levels, formats, metadata, sensitivity, repository or priority across landscape studies. Trigger even if the user just hands over one or more landscape CSV exports.
 ---
 
 # Landscape Summary
 
 Roll up one or more NAMHub Landscape CSV exports into a single table with one row per
-(`DataType`, `DatasetProcessingLevel`), where `DataType` is the `DatasetCategory`, suffixed " (single-cell)" / " (single-nucleus)" for assays listed in `assay_resolution`, then review the rule-based projections against the free text.
+(`DataType`, `Assay`, `DatasetProcessingLevel`), where `DataType` is the `DatasetCategory` (categories that share an assay at a level merge; in silico and Unknown assays stay per category), suffixed " (single-cell)" / " (single-nucleus)" for assays listed in `assay_resolution`, and `AssayType` is the curator-template assay type (`references/assay_types.json`); then review the rule-based projections against the free text.
 
 The script does the deterministic work (grouping, counts, schema mapping, rule-based
 sensitivity/repository/priority). You then do the judgment work: read the free-text fields
@@ -38,9 +38,10 @@ Inputs are CSV exports of Landscape RecordSets. Headers may be property names
    Options: `--mapping PATH` (default: the repo's long-format `landscape_assay_schema_candidates.csv`, one row per assay, processing level and candidate schema; the old `DCC`-column mapping format is still read),
    `--rules PATH` (default: `references/rules.json`), `--formats PATH` (default: `references/canonical_formats.csv`),
    `--old-manifests PATH [PATH ...]` (old manifest .html or extracted .csv, files or directories; enables the
-   reconciliation outputs below), `--format-level-rules PATH` (default: `references/format_level_rules.json`). It writes:
-   - `landscape_summary.csv` - one row per data type and processing level, rule-based columns plus `ReviewFlags`.
+   reconciliation outputs below), `--format-level-rules PATH` (default: `references/format_level_rules.json`), `--assay-types PATH` (default: `references/assay_types.json`). It writes:
+   - `landscape_summary.csv` - one row per data type, assay and processing level, rule-based columns plus `ReviewFlags`.
    - `landscape_summary_compact.csv` / `landscape_summary_compact.md` - compact view, generated directly by the script (see Outputs).
+   - `assay_type_summary.csv` / `.md` and `assay_type_evidence.csv` - curator-template sheet of confirmed information only (see Outputs).
    - `excluded_rows.csv` - placeholder/test rows left out of all aggregates.
    - With `--old-manifests` only: `old_manifest_links.csv`, `row_issues.csv`, `proposed_corrections.csv`,
      `description_loss.csv` (see Outputs).
@@ -92,9 +93,9 @@ Inputs are CSV exports of Landscape RecordSets. Headers may be property names
    - Compact files: agent review does not change them unless an override changed one of their columns
      (e.g. `RecommendedRepository`, `Species`). In that case regenerate them from the reviewed CSV:
      `python3 .claude/skills/landscape-summary/scripts/summarize_landscape.py --compact-from OUT/landscape_summary_reviewed.csv --out-dir OUT/`
-   - `landscape_summary.md` - a markdown table, one row per data type and level: DataType, ProcessingLevel, Assays,
+   - `landscape_summary.md` - a markdown table, one row per data type, assay and level: AssayType, DataType, ProcessingLevel, Assay,
      FileFormats, MetadataTypes, ProjectedSensitivity, RecommendedRepository, Priority,
-     CategoryStudyCount, StudyCount, DatasetCount, EstimatedFileCount, Species, NeedsInput (short) and a short Notes column.
+     AssayStudyCount, StudyCount, DatasetCount, EstimatedFileCount, Species, NeedsInput (short) and a short Notes column.
      Leave the long rationale columns out. `MetadataCandidates` is NOT in the md table (keep it compact) but stays
      in the reviewed CSV.
 
@@ -108,18 +109,30 @@ Inputs are CSV exports of Landscape RecordSets. Headers may be property names
 
 ## Outputs (written to `--out-dir`)
 
-- `landscape_summary.csv` - columns: DataType, ProcessingLevel, Assays, FileFormats, PreferredFileFormat,
+- `landscape_summary.csv` - columns: AssayType, DataType, ProcessingLevel, Assay, FileFormats, QuestionedFormats (tabular
+  formats removed from FileFormats as implausible raw sequencing data), PreferredFileFormat (grounded canonical format),
+  CanonicalFileFormat (raw canonical lookup),
   MetadataTypes, MetadataCandidates (non-preferred alternative schemas), UnmappedAssays, ProjectedSensitivity, SensitivityRationale,
-  RecommendedRepository, OtherRepositories, RepositoryRationale, Priority, CategoryStudyCount,
+  RecommendedRepository, OtherRepositories, RepositoryRationale, Priority, AssayStudyCount,
   StudyCount, DatasetCount, RowCount, EstimatedFileCount, EarliestAvailableDate, ExpectedDataVolume (largest old-manifest volume band; blank
   without `--old-manifests`), Species, ReviewFlags, NeedsInput. Sorted by
-  Priority, CategoryStudyCount (desc), DataType, then ProcessingLevel in enum order.
-- `landscape_summary_compact.csv` and `landscape_summary_compact.md` (plain GitHub table) - columns exactly: DataType,
-  ProcessingLevel, Assays, FileFormats, PreferredFileFormat, RecommendedRepository, Priority, CategoryStudyCount,
-  StudyCount, DatasetCount, Species, EarliestAvailableDate, ExpectedDataVolume; same row order as the full CSV. Written by the script;
-  `--compact-from REVIEWED_CSV --out-dir DIR` rewrites them from a reviewed CSV.
-- `PreferredFileFormat` comes from `references/canonical_formats.csv` (values validated against
-  `references/file_format_enum.json`); `EarliestAvailableDate` is the earliest parseable `UploadByDate` (ISO).
+  Priority, AssayStudyCount (desc), DataType, AssayType order, Assay, then ProcessingLevel in enum order. Code/model rows
+  in the model category are grouped at `Not Applicable` (`code_model_level`).
+- `landscape_summary_compact.csv` and `landscape_summary_compact.md` (plain GitHub table) - columns exactly: `Essential/key data?`
+  (blank, for curators), AssayType, DataType, Assay, ProcessingLevel (template labels such as `Level 1/Raw data`), Formats,
+  PreferredFormat, Priority, AssayStudyCount, StudyCount, DatasetCount, Species, EarliestAvailableDate,
+  ExpectedDataVolume. Ordered by AssayType (template order), DataType, Assay, level. Levels in `compact_exclude_levels` and
+  categories in `compact_exclude_categories` are left out (full CSV keeps them), and sequencing assays get blank scaffold
+  rows for missing levels up to their highest declared Level 1-3 (counts in `run_info.json` and the README). Written by the
+  script; `--compact-from REVIEWED_CSV --out-dir DIR` rewrites them from a reviewed CSV of this version.
+- `assay_type_summary.csv` / `.md` - the curator template's eight columns (Assay Category, Assay Type, Level 1-4 description
+  and file format, Additional file types, Established repository name), one row per assay type in template order, confirmed
+  information only: formats at centers-stated levels (fills and Unspecified rows excluded, questioned formats excluded),
+  repositories only from accessions in the rows' own text. `assay_type_evidence.csv` lists every value with its Status.
+  Rules in rubric.md.
+- `CanonicalFileFormat` comes from `references/canonical_formats.csv` (values validated against
+  `references/file_format_enum.json`); `PreferredFileFormat` is that value only when grounded in a declared format (same format
+  or same `format_families` family), else blank with a ReviewFlag; `EarliestAvailableDate` is the earliest parseable `UploadByDate` (ISO).
 - With `--old-manifests` (columns and rules in rubric.md): `old_manifest_links.csv` (revised row -> old entry/item),
   `row_issues.csv` (format/level plausibility issues with Origin), `proposed_corrections.csv` (evidence-backed
   proposals, never applied), `description_loss.csv`. `review_packet.json` then also carries fills and the volume-band
@@ -136,7 +149,7 @@ Inputs are CSV exports of Landscape RecordSets. Headers may be property names
   processing level (Level 3 and 4 -> Registered) except persistently identifiable categories
   (`level_max_tier`, `level_cap_exempt_categories`); code/model rows (code formats, or category model with blank format) are always Open; the
   fallback repository follows the tier (Open / Registered access / Controlled access).
-- Priority reflects breadth across studies per DataType only (all levels of a DataType share it; the single-cell split has its own breadth). Sensitivity, repository and other rules always use the underlying category, not importance or data quality.
+- Priority reflects breadth across studies per assay (`AssayStudyCount`; all levels of a grouping key share it). Sensitivity, repository and other rules always use the underlying category, not importance or data quality.
 - To change a rule (controlled categories, repository order, priority thresholds), edit
   `references/rules.json` and rerun; see `references/rubric.md`.
 - Tests: `python3 -m pytest .claude/skills/landscape-summary/tests -q`.

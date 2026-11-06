@@ -50,7 +50,8 @@ def test_readme_and_run_info_written(pkg):
     assert info["old_manifests"]["used"] is True and info["old_manifests"]["linked_row_count"] > 0
     assert info["mapping"]["file"] == "fixture_mapping.csv" and info["mapping"]["row_count"] == 4
     assert info["config_files"] == {"rules": "rules.json", "canonical_formats": "canonical_formats.csv",
-                                    "format_level_rules": "format_level_rules.json"}
+                                    "format_level_rules": "format_level_rules.json",
+                                    "assay_types": "assay_types.json"}
     assert info["script"] == ".claude/skills/landscape-summary/scripts/summarize_landscape.py"
     assert info["generated_at"].endswith("Z")
     assert "landscape_enums.json" in info["enum_notes"]

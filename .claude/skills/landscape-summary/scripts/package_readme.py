@@ -13,13 +13,16 @@ from pathlib import Path
 # (file, what it is, who it is for) in display order; only files present in the folder are listed.
 FILE_INFO = [
     ("README.md", "This guide.", "Everyone"),
-    ("landscape_summary_compact.md", "Shareable overview table (GitHub markdown) with the key columns.", "Everyone"),
-    ("landscape_summary_compact.csv", "Same overview as a CSV (opens in a spreadsheet).", "Everyone"),
+    ("landscape_summary_compact.md", "Shareable overview table (GitHub markdown) with the key columns, in assay-type order.", "Everyone"),
+    ("landscape_summary_compact.csv", "Same overview as a CSV (opens in a spreadsheet); the first column is left blank for curators to mark essential/key data.", "Everyone"),
+    ("assay_type_summary.md", "Curator-template sheet (one row per assay type) as markdown: only information the centers confirmed.", "Curators, everyone"),
+    ("assay_type_summary.csv", "Same sheet as a CSV: formats per processing level, additional file types and repositories named in the Landscape text.", "Curators"),
+    ("assay_type_evidence.csv", "Every value considered for the assay-type sheet with its status (confirmed or why it was left out), study count and Landscape ids.", "Curators"),
     ("landscape_summary_reviewed.csv",
      "Curated full table: the full summary after agent review, with ReviewNotes recording every override or proposal.",
      "Curators, data coordinators"),
     ("landscape_summary.md", "Reviewed table as markdown, with a short Notes column.", "Everyone"),
-    ("landscape_summary.csv", "Full rule-based summary, one row per data type and processing level, with rationale and flags.",
+    ("landscape_summary.csv", "Full rule-based summary, one row per data type, assay and processing level, with rationale and flags.",
      "Curators, data coordinators"),
     ("review_packet.json", "Machine-readable summary rows plus the raw free-text fields of their source rows; input to the review step.",
      "Reviewers, developers"),
@@ -36,11 +39,14 @@ FILE_INFO = [
 
 # One description per column of landscape_summary.csv (and landscape_summary_reviewed.csv).
 COLUMN_DESCRIPTIONS = {
-    "DataType": "Data category (e.g. gene expression, image). Single-cell, single-nucleus and spatial assays get a suffix such as \"(single-cell)\" so they are separate from bulk.",
-    "ProcessingLevel": "Processing level of the rows in this group (Level 1-4, Auxiliary, Metadata, Not Applicable or Unspecified).",
-    "Assays": "Assays declared in the group.",
-    "FileFormats": "File formats declared in the group.",
-    "PreferredFileFormat": "Canonical format(s) recommended for this assay and level, from the canonical-formats table.",
+    "AssayType": "Assay type from the curator template (assay_types.json), matched on the assay; assays not in the template are their own type and sort last.",
+    "DataType": "Data category (e.g. gene expression, image); categories that share the assay at this level are joined with \"; \". Single-cell, single-nucleus and spatial assays get a suffix such as \"(single-cell)\" so they are separate from bulk.",
+    "ProcessingLevel": "Processing level of the rows in this group (Level 1-4, Auxiliary, Metadata, Not Applicable or Unspecified). Code/model rows are grouped under Not Applicable.",
+    "Assay": "The assay of the group (one row per assay; blank or Unknown assays are grouped as Unknown).",
+    "FileFormats": "File formats declared in the group, without any questioned formats.",
+    "QuestionedFormats": "Tabular formats (csv, tsv, excel) declared at Level 1 of a sequencing assay: implausible as raw data, so removed from FileFormats and listed here.",
+    "PreferredFileFormat": "The canonical format(s) for this assay and level, shown only when grounded: at least one is the same format or in the same format family as a declared format. Blank otherwise (see ReviewFlags).",
+    "CanonicalFileFormat": "Canonical format(s) for this assay and level straight from the canonical-formats table, grounded or not.",
     "MetadataTypes": "Preferred metadata schema(s) for the assays at this level, as namespace:schema vN. \"(fallback)\" marks a generic fallback schema.",
     "MetadataCandidates": "Other registry schemas that could describe the assays at this level (non-preferred alternatives).",
     "UnmappedAssays": "Assays with no schema in the mapping file.",
@@ -49,9 +55,9 @@ COLUMN_DESCRIPTIONS = {
     "RecommendedRepository": "Suggested repository for the rows at the group's highest tier.",
     "OtherRepositories": "Repositories suggested for the remaining rows of the group.",
     "RepositoryRationale": "Row counts per suggested repository and the rule behind each.",
-    "Priority": "High, Medium or Low from breadth across studies for the data type (see CategoryStudyCount).",
-    "CategoryStudyCount": "Number of studies that have any rows of this data type (all levels).",
-    "StudyCount": "Number of studies with rows in this data type and level.",
+    "Priority": "High, Medium or Low from breadth across studies for the assay (see AssayStudyCount).",
+    "AssayStudyCount": "Number of studies with rows for this assay (at any level); for in silico and Unknown assays, for that assay within the row's category. Priority is computed from it.",
+    "StudyCount": "Number of studies with rows in this data type, assay and level.",
     "DatasetCount": "Number of distinct datasets (dataset groups) in this group.",
     "RowCount": "Number of Landscape rows in this group.",
     "EstimatedFileCount": "Estimated total files, summed from samples x file ratio per row; rows without usable numbers are skipped.",
@@ -73,6 +79,7 @@ def rules_snapshot(rules: dict) -> dict:
         "identifiable_processing_levels": rules.get("identifiable_processing_levels", []),
         "assay_resolution_groups": sorted(rules.get("assay_resolution", {})),
         "priority": rules.get("priority", {}),
+        "code_model_level": rules.get("code_model_level", ""),
         "repository_rules": [{"repository": r["repository"], "sensitivity": r.get("sensitivity", []),
                               "note": r.get("note", "")} for r in rules.get("repository_rules", [])],
         "fallback_repository": {t: v["repository"] for t, v in rules.get("fallback_repository", {}).items()},
@@ -112,7 +119,14 @@ def _md(s) -> str:
     return " ".join(str(s).split()).replace("|", "\\|")
 
 
+COMPACT_HEADERS = ["Essential/key data?", "AssayType", "DataType", "Assay", "ProcessingLevel", "Formats", "PreferredFormat",
+                   "Priority", "AssayStudyCount", "StudyCount", "DatasetCount", "Species", "EarliestAvailableDate",
+                   "ExpectedDataVolume"]
+
+
 def build_readme(info: dict, out_dir: Path, output_columns: list, compact_columns: list) -> str:
+    """compact_columns: full-table columns that also appear in the compact files."""
+    compact_headers = COMPACT_HEADERS
     present = {p.name for p in out_dir.iterdir() if p.is_file()} | {"README.md"}
     old = info.get("old_manifests", {})
     used_old = bool(old.get("used"))
@@ -123,7 +137,7 @@ def build_readme(info: dict, out_dir: Path, output_columns: list, compact_column
     a = L.append
 
     a("# Landscape summary package\n")
-    a("This folder summarizes the NAMHub Landscape across studies: one row per data type and processing level, "
+    a("This folder summarizes the NAMHub Landscape across studies: one row per data type, assay and processing level, "
       "with the file formats, metadata schemas, projected data sensitivity, suggested repository and priority "
       "that follow from the Landscape rows. It is a planning aid for data coordination and curation, produced by rule "
       "from the Landscape exports and reviewed by a curator before sharing.\n")
@@ -132,7 +146,14 @@ def build_readme(info: dict, out_dir: Path, output_columns: list, compact_column
     a(f"- Input files: {info.get('input_file_count', '?')}")
     a(f"- Landscape rows read: {info.get('input_row_count', '?')} ({info.get('excluded_row_count', '?')} excluded as placeholder/test rows)")
     a(f"- Studies: {info.get('study_count', '?')}")
-    a(f"- Summary rows (data type x processing level): {info.get('output_row_count', '?')}")
+    a(f"- Summary rows (data type x assay x processing level): {info.get('output_row_count', '?')}")
+    cp = info.get("compact", {})
+    if cp:
+        a(f"- Compact rows: {cp.get('row_count', '?')} ({cp.get('excluded_row_count', '?')} summary rows left out by the exclusions below; "
+          f"{cp.get('scaffold_row_count', '?')} scaffold rows added)")
+    ats = info.get("assay_type_summary", {})
+    if ats:
+        a(f"- Assay-type sheet rows: {ats.get('row_count', '?')} ({ats.get('evidence_row_count', '?')} evidence rows)")
     if used_old:
         a(f"- Old manifests used: yes ({old.get('linked_row_count', '?')} revised rows linked to an old entry)")
     else:
@@ -144,7 +165,10 @@ def build_readme(info: dict, out_dir: Path, output_columns: list, compact_column
     a("## Start here\n")
     if "landscape_summary_compact.md" in present or "landscape_summary_compact.csv" in present:
         names = " / ".join(f"`{n}`" for n in ("landscape_summary_compact.md", "landscape_summary_compact.csv") if n in present)
-        a(f"- {names} is the shareable overview: one short row per data type and processing level.")
+        a(f"- {names} is the shareable overview: one short row per data type, assay and processing level.")
+    if "assay_type_summary.csv" in present or "assay_type_summary.md" in present:
+        a("- `assay_type_summary.md` / `assay_type_summary.csv` is the curator-template sheet (one row per assay type); "
+          "`assay_type_evidence.csv` shows what was confirmed and what was left out.")
     if "landscape_summary_reviewed.csv" in present:
         a("- `landscape_summary_reviewed.csv` is the curated full table (all columns plus ReviewNotes).")
     elif "landscape_summary.csv" in present:
@@ -161,15 +185,17 @@ def build_readme(info: dict, out_dir: Path, output_columns: list, compact_column
     a("")
 
     a("## How to read the summary\n")
-    a("- **One row = one data type x one processing level.** Data type is the dataset category. Assays in these groups are "
+    a("- **One row = one data type x one assay x one processing level.** Data type is the dataset category; categories that share an assay at the same level are merged into one row (DataType lists them), except for in silico and Unknown assays, which keep the category apart. Assays in these groups are "
       f"split from bulk assays with a suffix naming their group ({_ml(rs.get('assay_resolution_groups'))}). "
-      "Processing levels run from Level 1 (raw) to Level 4 (most processed), plus Auxiliary, Metadata, Not Applicable and Unspecified.")
+      "Processing levels run from Level 1 (raw) to Level 4 (most processed), plus Auxiliary, Metadata, Not Applicable and Unspecified. "
+      + (f"Code/model rows in the model category are grouped under \"{rs['code_model_level']}\". " if rs.get("code_model_level") else "")
+      + "**AssayType** is the curator-template assay type (assay_types.json) the assay belongs to.")
     pr = rs.get("priority", {})
-    a(f"- **Priority** reflects breadth across studies only: `CategoryStudyCount` is the number of studies with the data type "
+    a(f"- **Priority** reflects breadth across studies only: `AssayStudyCount` is the number of studies with the assay "
       f"(all levels share it). High needs at least {pr.get('min_studies_for_high', '?')} studies and either "
       f"{round(100 * pr.get('high_fraction_of_studies', 0))}% of all studies or a place in the top "
-      f"{round(100 * pr.get('top_fraction_of_categories', 0))}% of data types by study count; Low means the data type appears in "
-      f"{pr.get('low_if_study_count_equals', '?')} study; the rest are Medium. Data types in the exclusion list "
+      f"{round(100 * pr.get('top_fraction_of_categories', 0))}% of assays by study count; Low means the assay appears in "
+      f"{pr.get('low_if_study_count_equals', '?')} study; the rest are Medium. Categories in the exclusion list "
       f"({_ml(pr.get('exclude_from_high'))}) are capped at Medium. It says nothing about data quality or importance.")
     tiers = rs.get("sensitivity_tiers", [])
     a(f"- **Projected sensitivity** has tiers {' < '.join(tiers) if tiers else 'Open < Registered < Controlled'}: "
@@ -192,13 +218,33 @@ def build_readme(info: dict, out_dir: Path, output_columns: list, compact_column
     a("- **MetadataTypes vs MetadataCandidates.** Both come from the registry mapping (namespace:schema version). MetadataTypes are the "
       "preferred schemas; at Levels 2-4 the schema made for that stage is preferred first. MetadataCandidates are other schemas "
       "that could also fit.")
-    a("- **PreferredFileFormat** is looked up in the canonical-formats table: assay + level, then assay (any level), then data "
-      "category + level, then category (any level). Blank means no canonical format is defined.")
+    a("- **CanonicalFileFormat** is looked up in the canonical-formats table: assay + level, then assay (any level), then data "
+      "category + level, then category (any level). Blank means no canonical format is defined. **PreferredFileFormat** repeats it only "
+      "when it is grounded in the data: a canonical format that is the same as, or in the same format family as (tabular, image, hdf5, "
+      "sequence, alignment, code), a declared format of the group. Otherwise it is blank and ReviewFlags says the canonical format is "
+      "not grounded. Scaffold rows in the compact files keep the canonical value.")
+    a("- **QuestionedFormats**: at Level 1 of a sequencing assay, tabular formats (csv, tsv, excel) are not plausible as raw data; "
+      "they are taken out of FileFormats, listed in QuestionedFormats and noted in ReviewFlags.")
     a("- **EarliestAvailableDate** is the earliest declared upload-by date in the group.")
     a("- **ExpectedDataVolume** is the largest data-volume band recorded in the old manifests for the group"
       + ("." if used_old else " (blank here: no old manifests were used)."))
     a("- **EstimatedFileCount** sums files per row (samples x files per sample, samples / samples per file, or total files). "
       "Rows with missing or non-numeric values are skipped and counted in ReviewFlags.\n")
+
+    cp = info.get("compact", {})
+    a("## Compact overview and assay-type sheet\n")
+    a("- The compact files have these columns: " + ", ".join(f"`{c}`" for c in compact_headers) + ". `Essential/key data?` is blank on "
+      "purpose for curators to fill; `Formats` and `PreferredFormat` are FileFormats and PreferredFileFormat of the full table; "
+      "ProcessingLevel is shown as the template level label.")
+    a(f"- Compact exclusions: rows at level ({_ml(cp.get('exclude_levels'))}) or in category ({_ml(cp.get('exclude_categories'))}) are left out "
+      f"of the compact files only (the full table keeps them): {cp.get('excluded_row_count', '?')} summary rows excluded.")
+    a(f"- Scaffold rows: for sequencing assays, every missing level from Level 1 up to the highest declared level (1-3) gets an empty "
+      f"row with only its PreferredFormat, so gaps are visible: {cp.get('scaffold_row_count', '?')} scaffold rows added. They are compact-only.")
+    a("- **assay_type_summary** has the curator template's eight columns, one row per assay type. It holds confirmed information "
+      "only: formats as the centers declared them at a stated processing level (Unspecified levels and levels filled from old "
+      "manifests do not count; questioned formats and compact-excluded rows are left out), additional file types from the Auxiliary and "
+      "Not Applicable levels, and repositories only where a public accession is written in the rows' own text. Nothing is projected "
+      "from rules. `assay_type_evidence.csv` lists every value considered with its Status.\n")
 
     a("## Column reference\n")
     a("Columns of `landscape_summary.csv`" + (" and `landscape_summary_reviewed.csv`" if "landscape_summary_reviewed.csv" in present else "")

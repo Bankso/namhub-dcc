@@ -6,24 +6,38 @@ and whitespace-trimmed. Rule output is a *projection* for curator review, not a
 determination; the agent review step (bottom) can override it with a recorded reason.
 
 ## Grouping
-- One output row per (`DataType`, `DatasetProcessingLevel`). Category matching is case-insensitive
+- One output row per (`DataType`, `Assay`, `DatasetProcessingLevel`): `DatasetAssay` is single-valued per row, so each
+  canonical assay (after `assay_aliases`, matched on the alphanumeric-lowercase key, most common spelling shown) gets its
+  own row. Blank and `unspecified_assay_values` assays group under assay `Unknown`. **Categories merge where the assay
+  aligns:** the key is (Assay, level) across categories, and `DataType` is the "; "-joined categories of the group's own rows.
+  Exceptions keep the category in the key: assays in `computational_assays` (in silico synthesis) and Unknown/unspecified
+  assays. Sensitivity/repository are per row, so a merged group takes the max tier with the "Mixed sensitivity" flag. Category matching is case-insensitive
   ("Clinical data" and "clinical data" merge; the most common spelling is displayed); blank category becomes
-  `Unknown`. `DataType` is the category name, plus " (<group>)" when the row's assay (after aliases, matched on the
+  `Unknown`. `DataType` is the category name(s), plus " (<group>)" when the row's assay (after aliases, matched on the
   alphanumeric-lowercase key) is listed in `assay_resolution` (default groups `single-cell`: single-cell RNA-seq,
   single cell ATAC-seq, scCGI-seq; `single-nucleus`: single-nucleus RNA-seq, single-nucleus ATAC-seq; `spatial`:
   spatial transcriptomics), e.g.
   "gene expression (single-cell)". Other rows (bulk RNA-seq) keep the plain category. Split rows stay separate from the
   bulk row even at the same level. Every rule below (sensitivity, repository, caps, exemptions, controlled/open
   categories, format conflicts) keys on the underlying `DatasetCategory`, never the DataType label.
+- `AssayType` (first column) is the curator-template assay type from `references/assay_types.json` (`--assay-types`):
+  an ordered list of `{name, assays, categories?}`; the first entry whose `assays` contain the row's assay (alphanumeric key,
+  after aliases) and, when `categories` is given, whose categories contain the row's category wins (so the category-filtered
+  "In silico model" precedes the unfiltered "In silico assay"). An unmatched assay becomes its own AssayType (the assay name)
+  and sorts after all listed types, alphabetically. The full CSV sorts by Priority, AssayStudyCount (desc), DataType,
+  AssayType order, Assay, level.
+- `code_model_level` (default `Not Applicable`): rows where `is_code_model` is true and the category is in
+  `code_model_categories` are grouped at that level whatever level they state, so model code rows (Auxiliary, Unspecified,
+  ...) merge into one row. Other categories' Auxiliary code rows are untouched. Set the key to `""` or remove it to turn off.
 - `ProcessingLevel` is a single value, matched case-insensitively to `processing_level_order`
   (Level 1, Level 2, Level 3, Level 4, Auxiliary, Metadata, Not Applicable, Unspecified). A blank level becomes
   `Unspecified` with the ReviewFlag "N row(s) with no DatasetProcessingLevel".
 - All per-row logic (sensitivity, repository, mixed-sensitivity flag, format conflicts, NeedsInput, flags)
-  runs per (DataType, level) row. `review_packet.json` has one entry per row.
+  runs per (DataType, Assay, level) row. `review_packet.json` has one entry per row.
 - CSV headers may be property names (`DatasetCategory`) or titles (`Dataset Category`); unknown
   columns (e.g. `ROW_ID`) are ignored.
-- `CategoryStudyCount` = distinct `StudyName` declaring the DataType (the possibly split label) at any level; `StudyCount` = distinct
-  `StudyName` for this (category, level). `DatasetCount` = distinct `DatasetGroup` (falling back to
+- `AssayStudyCount` = distinct `StudyName` having the grouping key's assay at any level (for the category-keyed exceptions:
+  that assay within that category); `StudyCount` = distinct `StudyName` for this (assay, level) group. `DatasetCount` = distinct `DatasetGroup` (falling back to
   `DatasetName` when the group is blank), scoped per study. `RowCount` counts every row;
   derived datasets (`DerivedFrom`) and rows repeated across inputs are not de-duplicated.
 
@@ -42,18 +56,64 @@ an assay or a category, never both). Every value must be a `DatasetFileFormat` e
 Lookup per assay in the row (assay matched on the alphanumeric key, category case-insensitively on the underlying
 category), first hit wins: (Assay, Level) -> (Assay, Any) -> (Category, Level) -> (Category, Any). Rows with no
 specific assay, or with Unknown/blank assays, also use the category steps. `PreferredFileFormat` = union of the
-results, de-duplicated, sorted, "; "-joined.
+results, de-duplicated, sorted, "; "-joined: this is `CanonicalFileFormat`. `PreferredFileFormat` is that value only when it
+is **grounded**: at least one canonical format is the same format (alphanumeric key) as, or in the same `format_families`
+family (rules.json: tabular, image, hdf5, sequence, alignment, code) as, at least one declared, non-questioned format of the
+group; otherwise it is blank. Groups with no declared formats have a blank PreferredFileFormat (compact scaffold rows keep
+the canonical value). Auxiliary / Not Applicable groups are exempt (PreferredFileFormat = canonical, no flag). Spatial
+transcriptomics rows get the NeedsInput note "Preferred format is platform-dependent; confirm platform" (Visium/Space Ranger
+vs Xenium/CosMx vendor bundles differ).
 - No result for an assay (or the category): ReviewFlag "No canonical format for: <assays or category>".
-- If declared `FileFormats` share no value (case-insensitive) with `PreferredFileFormat`: ReviewFlag
-  "Declared formats don't include preferred format (<preferred>)". Not applied to Auxiliary or Not Applicable rows
-  (nor when no preferred format resolved).
+- Canonical value not grounded in a non-empty set of declared formats: ReviewFlag
+  "Canonical format <x> not grounded in declared formats (<declared>)" (not for exempt levels or when nothing resolved)
+
+## Questioned formats
+`format_level_rules.json` `tabular_formats_not_raw_for_sequencing` (default csv, tsv, excel; loaded on every run, not only
+with `--old-manifests`). In a group whose assay is in `sequencing_assays` and whose level is Level 1, declared formats in
+the list are removed from `FileFormats` and listed in `QuestionedFormats` (next column), with the ReviewFlag
+"Format(s) not plausible as raw sequencing data: csv (N row(s)); excluded from FileFormats". Other formats (h5, RData...)
+stay; non-sequencing assays and other levels are untouched. Questioned formats are also left out of the preferred-format
+comparison and the assay-type sheet (listed in its evidence as excluded).
 
 ## Compact outputs
-`landscape_summary_compact.csv/.md`: DataType, ProcessingLevel, Assays, FileFormats, PreferredFileFormat,
-RecommendedRepository, Priority, CategoryStudyCount, StudyCount, DatasetCount, Species, EarliestAvailableDate,
-ExpectedDataVolume (last), in the full CSV's row order. In the full CSV `ExpectedDataVolume` follows `EarliestAvailableDate`
-(blank without `--old-manifests`; `--compact-from` tolerates reviewed CSVs that lack it). The md is a plain GitHub table with "|" escaped as "\|". `--compact-from REVIEWED_CSV --out-dir DIR`
-regenerates them from a reviewed CSV.
+`landscape_summary_compact.csv/.md` columns, in order: `Essential/key data?` (always blank, for curators), AssayType,
+DataType, Assay, ProcessingLevel, Formats (= FileFormats), PreferredFormat (= PreferredFileFormat), Priority,
+AssayStudyCount, StudyCount, DatasetCount, Species, EarliestAvailableDate, ExpectedDataVolume. RecommendedRepository is
+only in the full CSV. In the full CSV `ExpectedDataVolume` follows `EarliestAvailableDate` (blank without `--old-manifests`;
+`--compact-from` tolerates reviewed CSVs that lack it).
+- ProcessingLevel is shown with `level_labels` (Level 1 -> `Level 1/Raw data`, Level 2 -> `Level 2/Minimally processed or
+  QC'd`, Level 3 -> `Level 3/Processed, extracted, or summarized`, Level 4 -> `Level 4/Analysis or modeling`; other levels
+  unchanged).
+- Exclusions (compact only; the full CSV keeps everything): levels in `compact_exclude_levels` (default Metadata) and
+  categories in `compact_exclude_categories` (default clinical, report, data index; casefold match on the category without
+  the " (<group>)" suffix). The README states the exclusions and how many rows they removed.
+- Order: AssayType order, DataType, Assay, level order.
+- Scaffold rows (compact only): for each (DataType, Assay) in the compact whose assay is in `sequencing_assays`, every
+  missing level from Level 1 up to the highest declared level among Level 1-3 gets a row with AssayType, DataType, Assay,
+  level and the canonical PreferredFormat; Priority, counts, dates, volume, formats and species stay blank. Level 4 and
+  Auxiliary never trigger scaffolds. The count is in `run_info.json` (`compact.scaffold_row_count`) and the README.
+- The md is a plain GitHub table with "|" escaped as "\|". `--compact-from REVIEWED_CSV --out-dir DIR` regenerates them from
+  a reviewed CSV of this version (needs AssayType, Assay, ...; the rules, canonical formats, format/level rules and assay
+  types come from the default or given `--rules/--formats/--format-level-rules/--assay-types` files).
+
+## Assay-type sheet (`assay_type_summary.csv/.md`, `assay_type_evidence.csv`)
+Always written. One row per assay type in `assay_types.json` order (types with no assays still get a blank row), then
+unmatched assay types, using the template's eight headers (`columns` in the JSON). It holds **confirmed information only**:
+- Only rows as the centers stated them count: rows whose level came from an old-manifest fill are treated as level
+  unspecified, and Unspecified rows never fill a level column. Compact-excluded levels and categories are dropped.
+- `Assay Category`: "; "-joined distinct categories of the contributing rows.
+- Level 1-4 columns: distinct declared `DatasetFileFormat` values at that level, minus questioned formats, ordered by number
+  of distinct studies (desc) then name. `Additional file types`: formats declared at Auxiliary / Not Applicable, same
+  ordering, minus anything already in a level column of the row.
+- `Established repository name`: only public accessions written in the contributing rows' own text (DatasetDescription,
+  Comments, ApplicableStandards, ContextOfUse, DatasetName) and, with `--old-manifests`, the linked old entry text. Prefix
+  mapping: GSE/GSM/GPL -> GEO; SRP/SRR/SRX/SRS/PRJNA -> SRA; PRJEB/ERP/ERR -> ENA; PXD -> PRIDE; MTBLS -> MetaboLights;
+  ST + 6 digits -> Metabolomics Workbench; EGAS/EGAD -> EGA; phs -> dbGaP; syn -> Synapse; zenodo DOIs -> Zenodo; EMPIAR ->
+  EMPIAR; S-BIAD -> BioImage Archive. PMIDs are ignored. Cell format `GEO (GSE123, GSE456); PRIDE (PXD000001)`. Never
+  filled from the repository rules.
+- `assay_type_evidence.csv` (AssayType, Column, Value, Status, StudyCount, LandscapeIds): every value considered. Status is
+  `confirmed`, `excluded: questioned format`, `excluded: level unspecified` (Column `(no level)`), `excluded: level from
+  old-manifest fill`, or `excluded: compact exclusion (<reason>)`.
 
 ## Metadata types
 The mapping (`--mapping`, default `<repo>/landscape_assay_schema_candidates.csv`) is long-format: one row per
@@ -164,14 +224,13 @@ Evaluated per (category, level) over its rows after exclusions:
   terms, "de-identified" on Controlled categories, and participant-related words in code/model rows.
 
 ## Priority
-Breadth across studies per DataType only (`priority` in rules.json; the single-cell/single-nucleus split gets its
-own breadth); all levels of a DataType share its Priority. With T = total distinct studies and C = `CategoryStudyCount`:
+Breadth across studies per assay (`priority` in rules.json); all levels of a grouping key share its Priority. With T = total distinct studies and C = `AssayStudyCount`:
 - Low if C == 1.
-- High if C >= 2 and (C >= ceil(0.5 x T) or C >= the C of the last category in the top third of categories
+- High if C >= 2 and (C >= ceil(0.5 x T) or C >= the C of the last grouping key in the top third of keys
   ranked by C; ties at the cutoff count).
 - Otherwise Medium.
 - Categories in `exclude_from_high` (Unknown) are capped at Medium and flagged.
-Rows are sorted by Priority (High first), `CategoryStudyCount` desc, `DataType`, then `ProcessingLevel` in enum order.
+Rows are sorted by Priority (High first), `AssayStudyCount` desc, `DataType`, AssayType order, `Assay`, then `ProcessingLevel` in enum order.
 
 ## Agent review step (documented in SKILL.md)
 The rules above now encode the routine curator decisions (aliases, unspecified assays, placeholders,

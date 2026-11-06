@@ -60,6 +60,35 @@
     "model"
   ],
   "code_model_always_open": true,
+  "code_model_level": "Not Applicable",
+  "repository_assay_families": {
+    "GEO": "sequencing_assays", "SRA": "sequencing_assays", "ENA": "sequencing_assays", "dbGaP": "sequencing_assays",
+    "EGA": "sequencing_assays", "PRIDE": "mass_spec_assays", "MetaboLights": "mass_spec_assays",
+    "Metabolomics Workbench": "mass_spec_assays", "EMPIAR": "imaging_assays", "BioImage Archive": "imaging_assays",
+    "Synapse": "any", "Zenodo": "any"
+  },
+  "format_families": {
+    "tabular": ["csv", "tsv", "txt", "excel"],
+    "image": ["ome-tiff", "tif", "Ome-zarr", "png", "jpg", "czi", "svs"],
+    "hdf5": ["h5", "hdf5", "h5ad", "NWB"],
+    "sequence": ["fastq", "sra"],
+    "alignment": ["bam", "cram", "sam"],
+    "code": ["Github Repo", "Python script", "R script", "rmd", "Jupyter notebook", "MATLAB script", "bash script", "docker image"]
+  },
+  "compact_exclude_levels": [
+    "Metadata"
+  ],
+  "compact_exclude_categories": [
+    "clinical",
+    "report",
+    "data index"
+  ],
+  "level_labels": {
+    "Level 1": "Level 1/Raw data",
+    "Level 2": "Level 2/Minimally processed or QC'd",
+    "Level 3": "Level 3/Processed, extracted, or summarized",
+    "Level 4": "Level 4/Analysis or modeling"
+  },
   "assay_aliases": {
     "PharmocokineticADMEassay": "pharmacokinetic ADME assay"
   },

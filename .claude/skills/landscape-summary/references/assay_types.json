@@ -1,0 +1,154 @@
+{
+ "_comment": "Ordered assay-type taxonomy from the curator template (landscape_summary assay_type_summary sheet). Assays match on the alphanumeric-lowercase key after rules.json assay_aliases; first match in list order wins, so category-filtered entries (optional \"categories\") go before unfiltered ones. Unmatched assays become their own assay type and sort after these.",
+ "columns": [
+  "Assay Category",
+  "Assay Type",
+  "Level 1/Raw data description and file format",
+  "Level 2/Minimally processed or QC'd description and file format",
+  "Level 3/Processed, extracted, or summarized description and file format",
+  "Level 4/Analysis or modeling description and file format",
+  "Additional file types",
+  "Established repository name"
+ ],
+ "assay_types": [
+  {
+   "name": "Transcriptomics (Bulk)",
+   "assays": [
+    "RNA-seq"
+   ]
+  },
+  {
+   "name": "Transcriptomics (Single-cell/Single-nucleus)",
+   "assays": [
+    "single-cell RNA-seq",
+    "single-nucleus RNA-seq"
+   ]
+  },
+  {
+   "name": "Spatial Transcriptomics",
+   "assays": [
+    "spatial transcriptomics"
+   ]
+  },
+  {
+   "name": "Variant profiling (Bulk)",
+   "assays": [
+    "whole exome sequencing",
+    "whole genome sequencing"
+   ]
+  },
+  {
+   "name": "Chromatin profiling (Bulk)",
+   "assays": [
+    "ATAC-seq"
+   ]
+  },
+  {
+   "name": "Chromatin profiling (Single-cell/Single-nucleus)",
+   "assays": [
+    "single cell ATAC-seq",
+    "single-nucleus ATAC-seq"
+   ]
+  },
+  {
+   "name": "Spatial Chromatin profiling",
+   "assays": []
+  },
+  {
+   "name": "Imaging",
+   "assays": [
+    "3D confocal imaging",
+    "brightfield microscopy",
+    "confocal microscopy",
+    "electron microscopy",
+    "fluorescence microscopy assay",
+    "histology",
+    "immunofluorescence",
+    "immunohistochemistry",
+    "live imaging",
+    "second harmonic generation imaging"
+   ]
+  },
+  {
+   "name": "Flow cytometry",
+   "assays": [
+    "flow cytometry"
+   ]
+  },
+  {
+   "name": "Cell viability",
+   "assays": [
+    "cell viability assay"
+   ]
+  },
+  {
+   "name": "Calcium imaging",
+   "assays": [
+    "calcium imaging"
+   ]
+  },
+  {
+   "name": "Multi-electrode array",
+   "assays": [
+    "multi-electrode array"
+   ]
+  },
+  {
+   "name": "ELISA",
+   "assays": [
+    "ELISA"
+   ]
+  },
+  {
+   "name": "Luminex",
+   "assays": [
+    "Luminex"
+   ]
+  },
+  {
+   "name": "Mass spectrometry",
+   "assays": [
+    "mass spectrometry"
+   ]
+  },
+  {
+   "name": "Liquid chromatography/Mass spectrometry",
+   "assays": [
+    "liquid chromatography/mass spectrometry"
+   ]
+  },
+  {
+   "name": "High-content screen",
+   "assays": [
+    "high content screen"
+   ]
+  },
+  {
+   "name": "Small molecule drug screen",
+   "assays": [
+    "small molecule library screen"
+   ]
+  },
+  {
+   "name": "Pharmacokinetic ADME assay",
+   "assays": [
+    "pharmacokinetic ADME assay"
+   ]
+  },
+  {
+   "name": "In silico model",
+   "assays": [
+    "in silico synthesis"
+   ],
+   "categories": [
+    "model"
+   ]
+  },
+  {
+   "name": "In silico assay",
+   "assays": [
+    "in silico synthesis"
+   ]
+  }
+ ]
+}

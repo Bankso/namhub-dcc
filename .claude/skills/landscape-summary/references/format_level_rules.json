@@ -37,6 +37,11 @@
   "ultra high-performance liquid chromatography/tandem mass spectrometry",
   "label free mass spectrometry"
  ],
+ "tabular_formats_not_raw_for_sequencing": [
+  "csv",
+  "tsv",
+  "excel"
+ ],
  "level1_allowed_formats_for_sequencing": [
   "fastq",
   "sra"

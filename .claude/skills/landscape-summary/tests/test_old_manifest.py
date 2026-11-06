@@ -431,7 +431,8 @@ def test_without_old_manifests_outputs_unchanged(tmp_path):
     subprocess.run([sys.executable, str(SCRIPT), str(tmp_path / "revised.csv"), "--out-dir", str(out), "--mapping",
                     str(MAPPING)], check=True, capture_output=True)
     assert sorted(p.name for p in out.iterdir()) == [
-        "README.md", "excluded_rows.csv", "landscape_summary.csv", "landscape_summary_compact.csv",
+        "README.md", "assay_type_evidence.csv", "assay_type_summary.csv", "assay_type_summary.md", "excluded_rows.csv",
+        "landscape_summary.csv", "landscape_summary_compact.csv",
         "landscape_summary_compact.md", "review_packet.json", "run_info.json"]
     rows = read(out / "landscape_summary.csv")
     assert list(rows[0]) == sl.OUTPUT_COLUMNS

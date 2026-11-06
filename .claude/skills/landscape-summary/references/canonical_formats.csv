@@ -13,23 +13,23 @@ single-nucleus RNA-seq,,Level 3,h5ad; mtx,AnnData h5ad is the community standard
 single-nucleus RNA-seq,,Level 4,h5ad,Annotated AnnData (clusters embeddings) as h5ad
 single cell ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 single cell ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
-single cell ATAC-seq,,Level 3,bed narrowPeak; tsv,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
+single cell ATAC-seq,,Level 3,bed,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
 single cell ATAC-seq,,Level 4,h5ad,Cell-by-peak/tile matrix with annotations as AnnData h5ad (SnapATAC2/ArchR export)
 single-nucleus ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 single-nucleus ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
-single-nucleus ATAC-seq,,Level 3,bed narrowPeak; tsv,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
+single-nucleus ATAC-seq,,Level 3,bed,Enum has no fragments-specific type: fragments files are bgzipped tsv (tsv) and called peaks are bed narrowPeak; both are standard outputs so co-canonical
 single-nucleus ATAC-seq,,Level 4,h5ad,Cell-by-peak/tile matrix with annotations as AnnData h5ad (SnapATAC2/ArchR export)
 ATAC-seq,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 ATAC-seq,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
-ATAC-seq,,Level 3,bed narrowPeak,Peak calls (MACS2 narrowPeak) are the standard open Level 3 product
+ATAC-seq,,Level 3,bed,Peak calls (MACS2 narrowPeak) are the standard open Level 3 product
 ATAC-seq,,Level 4,tsv,Differential accessibility tables as tsv
 whole exome sequencing,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 whole exome sequencing,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
 whole exome sequencing,,Level 3,vcf,Variant calls as VCF
 whole exome sequencing,,Level 4,vcf,Annotated/filtered variant calls remain VCF (maf is an alternative for somatic-only cohorts; not co-canonical)
-spatial transcriptomics,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
-spatial transcriptomics,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical)
-spatial transcriptomics,,Level 3,h5ad,Spot/cell-by-gene matrix with coordinates as AnnData h5ad (SpatialData/Squidpy convention)
+spatial transcriptomics,,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format; the platform dictates the actual outputs (Visium/Space Ranger vs Xenium/CosMx vendor bundles)
+spatial transcriptomics,,Level 2,bam,Aligned reads: BAM is the standard open format (CRAM is a lossy-reference alternative; not co-canonical); platform-dependent (Visium/Space Ranger vs Xenium/CosMx vendor bundles)
+spatial transcriptomics,,Level 3,h5ad,Spot/cell-by-gene matrix with coordinates as AnnData h5ad (SpatialData/Squidpy convention); platform-dependent (Visium/Space Ranger vs Xenium/CosMx vendor bundles)
 spatial transcriptomics,,Level 4,h5ad,Annotated AnnData as h5ad
 3D confocal imaging,,Level 1,ome-tiff,OME-TIFF is the open standard (BioImage Archive-compatible) replacing vendor formats
 3D confocal imaging,,Level 2,ome-tiff,Corrected/registered/stitched images stay OME-TIFF
@@ -111,6 +111,7 @@ in silico synthesis,,Any,csv; Github Repo,Synthetic output tables (csv) and the 
 ,count matrix,Any,tsv,Count matrices as tsv
 ,chromatin activity,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 ,chromatin activity,Level 2,bam,Aligned reads as BAM
+,chromatin activity,Level 3,bed,Peak calls as bed
 ,chromatin activity,Any,bed narrowPeak,Peak calls as bed narrowPeak
 ,genomic variants,Level 1,fastq,Raw reads: FASTQ is the universal open interchange format
 ,genomic variants,Level 2,bam,Aligned reads as BAM

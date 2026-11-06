@@ -21,7 +21,7 @@ RULES = DEFAULT_RULES
 def summary():
     rows = sl.load_rows(sl.find_csvs([FIX]))
     result, total = sl.summarize(rows, sl.load_mapping(MAPPING), RULES)
-    return {(d["DataType"], d["ProcessingLevel"]): d for d in result}, total, rows
+    return {(d["DataType"], d["Assay"], d["ProcessingLevel"]): d for d in result}, total, rows
 
 
 def test_header_normalization():
@@ -41,34 +41,36 @@ def test_all_files_loaded_and_title_headers_work(summary):
 
 def test_category_casing_merged(summary):
     s, _, _ = summary
-    assert ("clinical data", "Level 3") in s  # most common spelling wins
+    assert ("clinical data", "clinical data", "Level 3") in s  # most common spelling wins
     assert len({k[0] for k in s if k[0].casefold() == "clinical data"}) == 1
-    cd3, cdna = s["clinical data", "Level 3"], s["clinical data", "Not Applicable"]
+    cd3, cdna = s["clinical data", "clinical data", "Level 3"], s["clinical data", "clinical data", "Not Applicable"]
     assert cd3["RowCount"] == 2 and cdna["RowCount"] == 1
-    assert cd3["CategoryStudyCount"] == cdna["CategoryStudyCount"] == 3
+    assert cd3["AssayStudyCount"] == cdna["AssayStudyCount"] == 3
     assert cd3["StudyCount"] == 2 and cdna["StudyCount"] == 1
 
 
 def test_metadata_mapping_case_insensitive_fallback_unmapped(summary):
     s, _, _ = summary
-    ge = s["gene expression", "Level 3"]
+    ge, zebra = s["gene expression", "RNA-seq", "Level 3"], s["gene expression", "Zebra assay", "Level 3"]
     # " rna-seq " (lowercase, padded) maps to RNA-seq; Zebra assay does not
-    assert ge["MetadataTypes"] == "NF:RNASeqTemplate"
-    assert ge["UnmappedAssays"] == "Zebra assay"
-    assert "Unmapped assays" in ge["ReviewFlags"]
-    assert s["image", "Level 1"]["MetadataTypes"] == "NF:MaterialScienceAssayTemplate (fallback)"
-    assert s["proteomics", "Level 1"]["MetadataTypes"] == "NF:MassSpecAssayTemplate"
+    assert ge["MetadataTypes"] == "NF:RNASeqTemplate" and ge["UnmappedAssays"] == ""
+    assert zebra["UnmappedAssays"] == "Zebra assay"
+    assert "Unmapped assays" in zebra["ReviewFlags"]
+    assert s["image", "Atomic force microscopy", "Level 1"]["MetadataTypes"] == "NF:MaterialScienceAssayTemplate (fallback)"
+    assert s["proteomics", "Mass spectrometry", "Level 1"]["MetadataTypes"] == "NF:MassSpecAssayTemplate"
 
 
 def test_file_count_all_units_and_skips(summary):
     s, _, _ = summary
-    # L1: 10*2 (per sample); L3: ceil(10/5) (samples per file) + 6*3 + 4*1 + ceil(8/4)
-    assert s["gene expression", "Level 1"]["EstimatedFileCount"] == "20"
-    assert s["gene expression", "Level 3"]["EstimatedFileCount"] == "26"
-    assert s["image", "Level 1"]["EstimatedFileCount"] == "3" and s["image", "Level 2"]["EstimatedFileCount"] == "4"
-    assert s["clinical data", "Level 3"]["EstimatedFileCount"] == "2"
-    assert s["clinical data", "Not Applicable"]["EstimatedFileCount"] == "1"
-    prot = s["proteomics", "Level 1"]
+    # L1: 10*2 (per sample); RNA-seq L3: ceil(10/5) (samples per file) + 4*1 + ceil(8/4); Zebra L3: 6*3
+    assert s["gene expression", "RNA-seq", "Level 1"]["EstimatedFileCount"] == "20"
+    assert s["gene expression", "RNA-seq", "Level 3"]["EstimatedFileCount"] == "8"
+    assert s["gene expression", "Zebra assay", "Level 3"]["EstimatedFileCount"] == "18"
+    assert s["image", "Atomic force microscopy", "Level 1"]["EstimatedFileCount"] == "3"
+    assert s["image", "Unknown", "Level 2"]["EstimatedFileCount"] == "4"
+    assert s["clinical data", "clinical data", "Level 3"]["EstimatedFileCount"] == "2"
+    assert s["clinical data", "clinical data", "Not Applicable"]["EstimatedFileCount"] == "1"
+    prot = s["proteomics", "Mass spectrometry", "Level 1"]
     assert prot["EstimatedFileCount"] == "0"
     assert "1 row(s) skipped" in prot["ReviewFlags"]
 
@@ -84,24 +86,24 @@ def test_file_estimate_units():
 
 def test_dataset_and_study_counts(summary):
     s, _, _ = summary
-    ge1, ge3 = s["gene expression", "Level 1"], s["gene expression", "Level 3"]
-    assert ge1["StudyCount"] == 1 and ge3["StudyCount"] == 4
-    assert ge1["CategoryStudyCount"] == ge3["CategoryStudyCount"] == 4
-    # L3: S1 G1, S2 G2, S3 D7, S4 D13
-    assert ge3["DatasetCount"] == 4
-    assert ge1["RowCount"] == 1 and ge3["RowCount"] == 4
+    ge1, ge3 = s["gene expression", "RNA-seq", "Level 1"], s["gene expression", "RNA-seq", "Level 3"]
+    assert ge1["StudyCount"] == 1 and ge3["StudyCount"] == 3
+    assert ge1["AssayStudyCount"] == ge3["AssayStudyCount"] == 3  # assay breadth (S1, S3, S4), shared by all its levels
+    # RNA-seq L3: S1 G1, S3 D7, S4 D13
+    assert ge3["DatasetCount"] == 3
+    assert ge1["RowCount"] == 1 and ge3["RowCount"] == 3
 
 
 def test_sensitivity_max_over_rows(summary):
     s, _, _ = summary
-    ge1, ge3 = s["gene expression", "Level 1"], s["gene expression", "Level 3"]
+    ge1, ge3 = s["gene expression", "RNA-seq", "Level 1"], s["gene expression", "RNA-seq", "Level 3"]
     assert ge1["ProjectedSensitivity"] == "Controlled"  # human fastq Level 1 row
     assert "Controlled" in ge1["SensitivityRationale"] and "1 row(s)" in ge1["SensitivityRationale"]
     assert ge3["ProjectedSensitivity"] == "Registered"  # max over the Level 3 rows
     assert "unknown species" in ge3["ReviewFlags"]
-    assert s["image", "Level 1"]["ProjectedSensitivity"] == "Open"
-    assert s["model", "Not Applicable"]["ProjectedSensitivity"] == "Open"
-    assert s["Unknown", "Level 3"]["ProjectedSensitivity"] == "Open"
+    assert s["image", "Atomic force microscopy", "Level 1"]["ProjectedSensitivity"] == "Open"
+    assert s["model", "Unknown", "Not Applicable"]["ProjectedSensitivity"] == "Open"
+    assert s["Unknown", "Unknown", "Level 3"]["ProjectedSensitivity"] == "Open"
 
 
 def test_row_tier_rules():
@@ -118,34 +120,37 @@ def test_row_tier_rules():
 
 def test_repository_dominance(summary):
     s, _, _ = summary
-    ge1, ge3 = s["gene expression", "Level 1"], s["gene expression", "Level 3"]
+    ge1, ge3 = s["gene expression", "RNA-seq", "Level 1"], s["gene expression", "RNA-seq", "Level 3"]
     assert ge1["RecommendedRepository"] == "dbGaP" and ge1["OtherRepositories"] == ""
     assert ge3["RecommendedRepository"] == "GEO"  # follows the Registered rows
-    assert "Mixed sensitivity: 3 Registered / 1 Open" in ge3["ReviewFlags"]
-    assert "4 row(s) -> GEO" in ge3["RepositoryRationale"]
+    assert "Mixed sensitivity" not in ge3["ReviewFlags"]  # the Open (mouse) row is a different assay now
+    assert s["gene expression", "Zebra assay", "Level 3"]["ProjectedSensitivity"] == "Open"
+    assert "3 row(s) -> GEO" in ge3["RepositoryRationale"]
     assert "NAMHub also hosts metadata" in ge3["RepositoryRationale"]
-    cd = s["clinical data", "Not Applicable"]  # uncapped level
+    cd = s["clinical data", "clinical data", "Not Applicable"]  # uncapped level
     assert cd["RecommendedRepository"] == "Synapse (controlled access)"
     assert "NAMHub also hosts" not in cd["RepositoryRationale"]
     # "clinical data" is not on the exempt list, so Level 3 is capped to Registered
-    cd3 = s["clinical data", "Level 3"]
+    cd3 = s["clinical data", "clinical data", "Level 3"]
     assert cd3["ProjectedSensitivity"] == "Registered"
     assert "2 row(s) lowered Controlled -> Registered by Level 3" in cd3["NeedsInput"]
-    assert s["image", "Level 1"]["RecommendedRepository"] == "BioImage Archive"
-    assert s["proteomics", "Level 1"]["RecommendedRepository"] == "PRIDE"
-    assert s["model", "Not Applicable"]["RecommendedRepository"] == "GitHub + Zenodo"
-    assert s["Unknown", "Level 3"]["RecommendedRepository"] == "Synapse (open)"
+    assert s["image", "Atomic force microscopy", "Level 1"]["RecommendedRepository"] == "BioImage Archive"
+    assert s["proteomics", "Mass spectrometry", "Level 1"]["RecommendedRepository"] == "PRIDE"
+    assert s["model", "Unknown", "Not Applicable"]["RecommendedRepository"] == "GitHub + Zenodo"
+    assert s["Unknown", "Unknown", "Level 3"]["RecommendedRepository"] == "Synapse (open)"
 
 
 def test_priority_tiers(summary):
     s, _, _ = summary
-    for lv in ("Level 1", "Level 3"):
-        assert s["gene expression", lv]["Priority"] == "High"
-    assert s["clinical data", "Level 3"]["Priority"] == "High"
-    assert s["clinical data", "Not Applicable"]["Priority"] == "High"
-    assert s["image", "Level 1"]["Priority"] == s["image", "Level 2"]["Priority"] == "Medium"
-    assert s["proteomics", "Level 1"]["Priority"] == "Low"
-    assert s["model", "Not Applicable"]["Priority"] == "Low"
+    # Priority is per assay (AssayStudyCount): RNA-seq levels share it, the one-study Zebra assay is Low
+    for k in (("RNA-seq", "Level 1"), ("RNA-seq", "Level 3")):
+        assert s["gene expression", k[0], k[1]]["Priority"] == "High"
+    assert s["gene expression", "Zebra assay", "Level 3"]["Priority"] == "Low"
+    assert s["clinical data", "clinical data", "Level 3"]["Priority"] == "High"
+    assert s["clinical data", "clinical data", "Not Applicable"]["Priority"] == "High"
+    assert s["image", "Atomic force microscopy", "Level 1"]["Priority"] == s["image", "Unknown", "Level 2"]["Priority"] == "Low"
+    assert s["proteomics", "Mass spectrometry", "Level 1"]["Priority"] == "Low"
+    assert s["model", "Unknown", "Not Applicable"]["Priority"] == "Low"
 
 
 def test_priority_unknown_excluded_from_high():
@@ -164,9 +169,9 @@ def test_cli_outputs_and_column_order(tmp_path):
         header = next(r)
         rows = list(r)
     assert header == sl.OUTPUT_COLUMNS
-    assert header == ["DataType", "ProcessingLevel", "Assays", "FileFormats", "PreferredFileFormat", "MetadataTypes", "MetadataCandidates", "UnmappedAssays",
+    assert header == ["AssayType", "DataType", "ProcessingLevel", "Assay", "FileFormats", "QuestionedFormats", "PreferredFileFormat", "CanonicalFileFormat", "MetadataTypes", "MetadataCandidates", "UnmappedAssays",
                       "ProjectedSensitivity", "SensitivityRationale", "RecommendedRepository", "OtherRepositories",
-                      "RepositoryRationale", "Priority", "CategoryStudyCount", "StudyCount", "DatasetCount",
+                      "RepositoryRationale", "Priority", "AssayStudyCount", "StudyCount", "DatasetCount",
                       "RowCount", "EstimatedFileCount", "EarliestAvailableDate", "ExpectedDataVolume", "Species", "ReviewFlags", "NeedsInput"]
     pri = [row[header.index("Priority")] for row in rows]
     order = {"High": 0, "Medium": 1, "Low": 2}
@@ -178,9 +183,10 @@ def test_cli_outputs_and_column_order(tmp_path):
     prow = packet["data_types"][0]["row"]
     assert "MetadataCandidates" in prow
     assert prow["DataType"] and prow["ProcessingLevel"]
-    # sort: priority, CategoryStudyCount desc
-    keys = [(order[r[header.index("Priority")]], -int(r[header.index("CategoryStudyCount")])) for r in rows]
+    # sort: priority, AssayStudyCount desc
+    keys = [(order[r[header.index("Priority")]], -int(r[header.index("AssayStudyCount")])) for r in rows]
     assert keys == sorted(keys)
+    assert header.index("QuestionedFormats") == header.index("FileFormats") + 1
 
 
 def test_context_of_use_parsing():
@@ -230,14 +236,14 @@ def test_assay_matching_ignores_case_spacing_punctuation(tmp_path):
             _mk(StudyName="S3", DatasetName="D3", DatasetCategory="x", DatasetAssay="single cell ATAC/seq"),
             _mk(StudyName="S4", DatasetName="D4", DatasetCategory="x", DatasetAssay="single-nucleus ATAC-seq")]
     res = {d["DataType"]: d for d in sl.summarize(rows, mapping, RULES)[0]}
-    # single-cell / single-nucleus assays now split into their own DataType rows
+    # single-cell / single-nucleus assays split into their own DataType rows
     assert set(res) == {"x", "x (single-cell)", "x (single-nucleus)"}
     assert res["x (single-cell)"]["MetadataTypes"] == "NF:AtacT"
     assert res["x (single-nucleus)"]["UnmappedAssays"] == "single-nucleus ATAC-seq"
     d = res["x"]
     assert d["MetadataTypes"] == "NF:SynT"
     # the two synthesis spellings collapse into one displayed assay
-    assert sum("ilico" in a.replace(" ", "").replace("-", "").lower() for a in d["Assays"].split("; ")) == 1
+    assert "ilico" in d["Assay"].replace(" ", "").replace("-", "").lower() and d["RowCount"] == 2
 
 
 def test_registered_fallback_label():
@@ -292,7 +298,7 @@ def test_one_category_three_levels_share_priority_and_category_count():
     assert [d["ProcessingLevel"] for d in result] == ["Level 1", "Level 3", "Level 4"]
     assert {d["DataType"] for d in result} == {"proteomics"}
     assert {d["Priority"] for d in result} == {"High"}
-    assert {d["CategoryStudyCount"] for d in result} == {4}
+    assert {d["AssayStudyCount"] for d in result} == {4}
     assert [d["StudyCount"] for d in result] == [1, 2, 1]
     assert "ProcessingLevels" not in result[0]
 
@@ -369,15 +375,16 @@ def test_assay_alias_before_mapping_and_dedup(tmp_path):
                  "pharmacokinetic ADME assay,NF,PkT,u,No,t\n")
     rows = [_r(1, DatasetAssay="PharmocokineticADMEassay"), _r(2, DatasetAssay="pharmacokinetic ADME assay")]
     d = _one(rows, mapping=sl.load_mapping(m))[0]
-    assert d["Assays"] == "pharmacokinetic ADME assay" and d["MetadataTypes"] == "NF:PkT"
+    assert d["Assay"] == "pharmacokinetic ADME assay" and d["RowCount"] == 2 and d["MetadataTypes"] == "NF:PkT"
     assert d["UnmappedAssays"] == ""
 
 
 def test_unspecified_assays_flagged_not_unmapped():
     rows = [_r(1, DatasetAssay="Unknown"), _r(2, DatasetAssay=""), _r(3, DatasetAssay="Zebra")]
-    d = _one(rows)[0]
-    assert d["UnmappedAssays"] == "Zebra"
-    assert "2 row(s) with no specific assay (Unknown/blank); set DatasetAssay" in d["ReviewFlags"]
+    res = {d["Assay"]: d for d in _one(rows)}
+    assert set(res) == {"Unknown", "Zebra"} and res["Unknown"]["RowCount"] == 2
+    assert res["Zebra"]["UnmappedAssays"] == "Zebra" and res["Unknown"]["UnmappedAssays"] == ""
+    assert "2 row(s) with no specific assay (Unknown/blank); set DatasetAssay" in res["Unknown"]["ReviewFlags"]
 
 
 def test_placeholder_rows_excluded(tmp_path):
@@ -558,8 +565,8 @@ def test_assays_resolve_independently_per_level(tmp_path):
               _c("Bar", "Any", "NF", "BarAny", "3.0.0", "Yes"))
     rows = [_r(1, DatasetAssay="Foo", DatasetProcessingLevel="Level 2"),
             _r(2, DatasetAssay="Bar", DatasetProcessingLevel="Level 2")]
-    d = _one(rows, mapping=m)[0]
-    assert d["MetadataTypes"] == "HTAN2:FooL2 v1.0.0; NF:BarAny v3.0.0"
+    res = {d["Assay"]: d for d in _one(rows, mapping=m)}
+    assert res["Foo"]["MetadataTypes"] == "HTAN2:FooL2 v1.0.0" and res["Bar"]["MetadataTypes"] == "NF:BarAny v3.0.0"
 
 
 def test_candidates_content_order_dedup_and_fallback_suffix(tmp_path):
@@ -570,10 +577,10 @@ def test_candidates_content_order_dedup_and_fallback_suffix(tmp_path):
               _c("Foo", "Any", "MC2", "Pref", "1.0.0", "Yes", "Yes"),
               _c("Bar", "Any", "ADKP", "Alpha", "2.0.0", "No"),   # duplicate across assays
               _c("Bar", "Any", "HTAN2", "BarPref", "1.0.0", "Yes"))
-    rows = [_r(1, DatasetAssay="Foo"), _r(2, DatasetAssay="Bar")]
-    d = _one(rows, mapping=m)[0]
-    assert d["MetadataTypes"] == "HTAN2:BarPref v1.0.0; MC2:Pref v1.0.0 (fallback)"
-    assert d["MetadataCandidates"] == "ADKP:Alpha v2.0.0; ADKP:Beta v1.0.0; NF:Zed v1.0.0"
+    res = {d["Assay"]: d for d in _one([_r(1, DatasetAssay="Foo"), _r(2, DatasetAssay="Bar")], mapping=m)}
+    assert res["Bar"]["MetadataTypes"] == "HTAN2:BarPref v1.0.0" and res["Bar"]["MetadataCandidates"] == "ADKP:Alpha v2.0.0"
+    assert res["Foo"]["MetadataTypes"] == "MC2:Pref v1.0.0 (fallback)"
+    assert res["Foo"]["MetadataCandidates"] == "ADKP:Alpha v2.0.0; ADKP:Beta v1.0.0; NF:Zed v1.0.0"
 
 
 def test_unmapped_when_no_level_or_any_rows(tmp_path):
@@ -607,19 +614,27 @@ def test_schema_preferred_outright_not_also_listed_as_fallback(tmp_path):
               _c("Bar", "Any", "MC2", "ImgT", "1.0.0", "Yes", "Yes"))
     rows = [_r(1, DatasetAssay="Foo", DatasetCategory="x", DatasetProcessingLevel="Level 1"),
             _r(2, DatasetAssay="Bar", DatasetCategory="x", DatasetProcessingLevel="Level 1")]
-    assert _one(rows, mapping=m)[0]["MetadataTypes"] == "MC2:ImgT v1.0.0"
+    # one row per assay now, so the fallback label is judged within each assay's own row
+    res = {d["Assay"]: d["MetadataTypes"] for d in _one(rows, mapping=m)}
+    assert res == {"Foo": "MC2:ImgT v1.0.0", "Bar": "MC2:ImgT v1.0.0 (fallback)"}
 
 
 # ---------------------------------------------------------------- split, dates, canonical formats, compact
 FORMATS_CSV = SKILL / "references" / "canonical_formats.csv"
 FORMATS = sl.load_formats(FORMATS_CSV)
-COMPACT_HEADER = ["DataType", "ProcessingLevel", "Assays", "FileFormats", "PreferredFileFormat",
-                  "RecommendedRepository", "Priority", "CategoryStudyCount", "StudyCount", "DatasetCount",
-                  "Species", "EarliestAvailableDate", "ExpectedDataVolume"]
+FLR = json.loads((SKILL / "references" / "format_level_rules.json").read_text())
+AT = sl.load_assay_types(SKILL / "references" / "assay_types.json")
+COMPACT_HEADER = ["Essential/key data?", "AssayType", "DataType", "Assay", "ProcessingLevel", "Formats", "PreferredFormat",
+                  "Priority", "AssayStudyCount", "StudyCount", "DatasetCount", "Species", "EarliestAvailableDate",
+                  "ExpectedDataVolume"]
 
 
 def _sum(rows, formats=None):
     return {(d["DataType"], d["ProcessingLevel"]): d for d in sl.summarize(rows, {}, RULES, None, formats)[0]}
+
+
+def _sum3(rows, formats=None):
+    return {(d["DataType"], d["Assay"], d["ProcessingLevel"]): d for d in sl.summarize(rows, {}, RULES, None, formats)[0]}
 
 
 def test_rules_assay_resolution():
@@ -640,8 +655,8 @@ def test_split_datatype_naming_and_per_datatype_priority():
     assert set(s) == {("gene expression", "Level 3"), ("gene expression (single-cell)", "Level 3"),
                       ("chromatin activity (single-nucleus)", "Level 3")}
     bulk, sc = s["gene expression", "Level 3"], s["gene expression (single-cell)", "Level 3"]
-    assert bulk["Assays"] == "RNA-seq" and sc["Assays"] == "Single cell RNA seq"
-    assert bulk["CategoryStudyCount"] == 3 and sc["CategoryStudyCount"] == 1
+    assert bulk["Assay"] == "RNA-seq" and sc["Assay"] == "Single cell RNA seq"
+    assert bulk["AssayStudyCount"] == 3 and sc["AssayStudyCount"] == 1
     assert bulk["Priority"] == "High" and sc["Priority"] == "Low"
 
 
@@ -649,13 +664,13 @@ def test_rules_key_on_category_not_datatype_label():
     # genomic variants is cap-exempt; the split label must not defeat that
     rows = [_r(1, DatasetCategory="genomic variants", DatasetAssay="single-cell RNA-seq", DatasetSpecies="Homo sapiens",
                DatasetProcessingLevel="Level 3", DatasetFileFormat="vcf"),
-            _r(2, DatasetCategory="gene expression", DatasetAssay="single-cell RNA-seq", DatasetSpecies="Homo sapiens",
+            _r(2, DatasetCategory="gene expression", DatasetAssay="single-nucleus RNA-seq", DatasetSpecies="Homo sapiens",
                DatasetProcessingLevel="Level 3", DatasetFileFormat="h5ad")]
     s = _sum(rows)
     g = s["genomic variants (single-cell)", "Level 3"]
     assert g["ProjectedSensitivity"] == "Controlled" and g["NeedsInput"] == ""
     assert g["RecommendedRepository"] == "dbGaP"
-    assert s["gene expression (single-cell)", "Level 3"]["ProjectedSensitivity"] == "Registered"
+    assert s["gene expression (single-nucleus)", "Level 3"]["ProjectedSensitivity"] == "Registered"
     # Unknown exclusion from High keys on the category too
     prio, _ = sl.assign_priority({"Unknown (single-cell)": 4, "a": 4}, 4, RULES, {"Unknown (single-cell)": "Unknown"})
     assert prio["Unknown (single-cell)"] == "Medium"
@@ -709,31 +724,49 @@ def test_preferred_union_cocanonical_and_category_fallback():
     rows = [_r(1, DatasetAssay="a1", DatasetProcessingLevel="Level 3", DatasetFileFormat="h5ad"),
             _r(2, DatasetAssay="a2", DatasetProcessingLevel="Level 3", DatasetFileFormat="h5ad"),
             _r(3, DatasetAssay="a3", DatasetProcessingLevel="Level 3", DatasetFileFormat="h5ad")]
-    d = _sum(rows, t)["x", "Level 3"]
-    assert d["PreferredFileFormat"] == "csv; h5ad; mtx; tsv"
-    assert "No canonical format" not in d["ReviewFlags"]
+    s = _sum3(rows, t)  # one row per assay: assay entry (level-specific or Any), else the category entry
+    assert s["x", "a1", "Level 3"]["CanonicalFileFormat"] == "h5ad; mtx"
+    assert s["x", "a2", "Level 3"]["CanonicalFileFormat"] == "csv"
+    assert s["x", "a3", "Level 3"]["CanonicalFileFormat"] == "tsv"
+    assert all("No canonical format" not in d["ReviewFlags"] for d in s.values())
+    assert s["x", "a1", "Level 3"]["PreferredFileFormat"] == "h5ad"  # h5ad declared; mtx has no family and is not declared
+    assert s["x", "a2", "Level 3"]["PreferredFileFormat"] == ""  # hdf5 family does not ground csv
 
 
 def test_no_canonical_format_flag():
     t = _fmt_table(("a1", "", "Any", "csv"))
-    d = _sum([_r(1, DatasetAssay="a1", DatasetProcessingLevel="Level 3", DatasetFileFormat="csv"),
-              _r(2, DatasetAssay="a2", DatasetProcessingLevel="Level 3", DatasetFileFormat="csv")], t)["x", "Level 3"]
-    assert d["PreferredFileFormat"] == "csv" and "No canonical format for: a2" in d["ReviewFlags"]
+    s = _sum3([_r(1, DatasetAssay="a1", DatasetProcessingLevel="Level 3", DatasetFileFormat="csv"),
+               _r(2, DatasetAssay="a2", DatasetProcessingLevel="Level 3", DatasetFileFormat="csv")], t)
+    assert s["x", "a1", "Level 3"]["PreferredFileFormat"] == "csv"
+    d = s["x", "a2", "Level 3"]
+    assert d["PreferredFileFormat"] == "" and "No canonical format for: a2" in d["ReviewFlags"]
     d = _sum([_r(1, DatasetProcessingLevel="Level 3")], t)["x", "Level 3"]
     assert d["PreferredFileFormat"] == "" and "No canonical format for: x" in d["ReviewFlags"]
     # feature off without a table
     assert "canonical" not in _sum([_r(1)])["x", "Unspecified"]["ReviewFlags"]
 
 
-def test_declared_vs_preferred_flag_and_exemptions():
+def test_grounded_preferred_format_flag_and_exemptions():
     t = _fmt_table(("", "x", "Any", "csv; tsv"))
-    def flags(level, fmt):
+    def one(level, fmt):
         d = _sum([_r(1, DatasetProcessingLevel=level, DatasetFileFormat=fmt)], t)
-        return next(iter(d.values()))["ReviewFlags"]
-    assert "Declared formats don't include preferred format (csv; tsv)" in flags("Level 3", "xlsx")
-    assert "Declared formats don't include" not in flags("Level 3", "TSV")
-    assert "Declared formats don't include" not in flags("Auxiliary", "xlsx")
-    assert "Declared formats don't include" not in flags("Not Applicable", "xlsx")
+        return next(iter(d.values()))
+    d = one("Level 3", "xlsx")  # excel is tabular, but xlsx is not an enum spelling: no family -> not grounded
+    assert d["CanonicalFileFormat"] == "csv; tsv" and d["PreferredFileFormat"] == ""
+    assert "Canonical format csv; tsv not grounded in declared formats (xlsx)" in d["ReviewFlags"]
+    assert "Declared formats don't include" not in d["ReviewFlags"]
+    assert one("Level 3", "TSV")["PreferredFileFormat"] == "csv; tsv"  # same format (case-insensitive)
+    assert one("Level 3", "txt")["PreferredFileFormat"] == "csv; tsv"  # same family (tabular)
+    assert one("Level 3", "excel")["PreferredFileFormat"] == "csv; tsv"
+    d = one("Level 3", "h5")
+    assert d["PreferredFileFormat"] == "" and "not grounded in declared formats (h5)" in d["ReviewFlags"]
+    # no declared formats: blank, and nothing to ground against so no flag
+    d = one("Level 3", "")
+    assert d["PreferredFileFormat"] == "" and d["CanonicalFileFormat"] == "csv; tsv" and "not grounded" not in d["ReviewFlags"]
+    # grounding applies at Auxiliary / Not Applicable too
+    for lv in ("Auxiliary", "Not Applicable"):
+        assert one(lv, "xlsx")["PreferredFileFormat"] == ""
+        assert one(lv, "txt")["PreferredFileFormat"] == "csv; tsv"
 
 
 def test_every_canonical_format_in_enum():
@@ -779,7 +812,7 @@ def test_default_summary_has_preferred_and_date_columns_in_order(tmp_path):
         r = csv.reader(fh)
         h = next(r)
         row = dict(zip(h, next(r)))
-    assert h.index("PreferredFileFormat") == h.index("FileFormats") + 1
+    assert h.index("PreferredFileFormat") == h.index("QuestionedFormats") + 1
     assert h.index("EarliestAvailableDate") == h.index("EstimatedFileCount") + 1
     assert row["PreferredFileFormat"] == "fastq" and row["EarliestAvailableDate"] == "2025-02-01"
     pk = json.loads((out / "review_packet.json").read_text())["data_types"][0]["row"]
@@ -797,23 +830,72 @@ def test_compact_outputs_header_order_and_md(tmp_path):
         r = csv.reader(fh)
         assert next(r) == COMPACT_HEADER
         body = list(r)
-    with open(out / "landscape_summary.csv", newline="") as fh:
-        full = list(csv.DictReader(fh))
-    assert [b[0:2] for b in body] == [[f["DataType"], f["ProcessingLevel"]] for f in full]
+    h = COMPACT_HEADER
+    assert all(b[h.index("Essential/key data?")] == "" for b in body)
+    # RNA-seq (Transcriptomics) comes before the unmatched image category/assay
+    assert [b[h.index("DataType")] for b in body] == ["gene expression", "image"]
+    assert body[0][h.index("ProcessingLevel")] == "Level 1/Raw data" and body[0][h.index("Formats")] == "fastq"
     md = (out / "landscape_summary_compact.md").read_text().splitlines()
     assert md[0] == "| " + " | ".join(COMPACT_HEADER) + " |"
-    assert md[1].startswith("|---") and len(md) == 2 + len(full)
+    assert md[1].startswith("|---") and len(md) == 2 + len(body)
     assert "RNA-seq \\| x" in md[2]
+
+
+def _row(**k):
+    return {**{c: "" for c in sl.OUTPUT_COLUMNS}, **k}
+
+
+def _compact(rows, **kw):
+    out, n_ex, n_sc = sl.build_compact(rows, RULES, FORMATS, FLR, AT)
+    return out, n_ex, n_sc
+
+
+def test_compact_level_labels_exclusions_ordering_and_scaffold():
+    mk = lambda at, dt, assay, lv, **k: _row(AssayType=at, DataType=dt, Assay=assay, ProcessingLevel=lv, **k)
+    rows = [
+        mk("Imaging", "image", "histology", "Level 3", Priority="High", StudyCount=2),
+        mk("Transcriptomics (Bulk)", "gene expression", "RNA-seq", "Level 3", PreferredFileFormat="tsv"),
+        mk("Transcriptomics (Bulk)", "gene expression", "RNA-seq", "Level 1"),
+        mk("Transcriptomics (Bulk)", "gene expression", "RNA-seq", "Metadata"),
+        mk("Transcriptomics (Bulk)", "gene expression", "RNA-seq", "Auxiliary"),
+        mk("Unknown", "clinical", "Unknown", "Level 1"),
+        mk("Unknown", "data index", "Unknown", "Level 1"),
+        mk("zzz assay", "zzz", "zzz assay", "Level 2"),
+    ]
+    out, n_ex, n_sc = _compact(rows)
+    assert (n_ex, n_sc) == (3, 1)  # Metadata level, clinical, data index; scaffold: RNA-seq Level 2
+    assert [(r["AssayType"], r["ProcessingLevel"]) for r in out] == [
+        ("Transcriptomics (Bulk)", "Level 1/Raw data"),
+        ("Transcriptomics (Bulk)", "Level 2/Minimally processed or QC'd"),
+        ("Transcriptomics (Bulk)", "Level 3/Processed, extracted, or summarized"),
+        ("Transcriptomics (Bulk)", "Auxiliary"),
+        ("Imaging", "Level 3/Processed, extracted, or summarized"),
+        ("zzz assay", "Level 2/Minimally processed or QC'd")]
+    sc = out[1]  # scaffold row: only identity columns and the canonical format
+    assert sc["PreferredFormat"] == "bam" and sc["Priority"] == sc["StudyCount"] == sc["Formats"] == ""
+    assert all(r["Essential/key data?"] == "" for r in out)
+    # imaging is not a sequencing assay: no scaffold for its missing levels
+    assert sum(1 for r in out if r["AssayType"] == "Imaging") == 1
+
+
+def test_compact_scaffold_needs_a_declared_level_and_stops_at_highest():
+    mk = lambda assay, lv: _row(AssayType="Transcriptomics (Bulk)", DataType="gene expression", Assay=assay, ProcessingLevel=lv)
+    out, _, n_sc = _compact([mk("RNA-seq", "Level 2")])
+    assert n_sc == 1 and [r["ProcessingLevel"][:7] for r in out] == ["Level 1", "Level 2"]
+    assert _compact([mk("RNA-seq", "Level 4")])[2] == 0  # Level 4 does not drive scaffolds
+    assert _compact([mk("RNA-seq", "Auxiliary")])[2] == 0
 
 
 def test_compact_from_reviewed_csv(tmp_path):
     reviewed = tmp_path / "reviewed.csv"
-    cols = COMPACT_HEADER + ["ReviewNotes", "ProjectedSensitivity"]
+    cols = sl.OUTPUT_COLUMNS + ["ReviewNotes"]
     with open(reviewed, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols)
         w.writeheader()
-        w.writerow({"DataType": "image", "ProcessingLevel": "Level 1", "RecommendedRepository": "IDR | x",
-                    "Priority": "High", "ReviewNotes": "changed", "ProjectedSensitivity": "Open"})
+        w.writerow(_row(AssayType="Imaging", DataType="image", Assay="histology", ProcessingLevel="Level 1",
+                        FileFormats="tiff | x", Priority="High", ReviewNotes="changed", ProjectedSensitivity="Open"))
+        w.writerow(_row(AssayType="Transcriptomics (Bulk)", DataType="gene expression", Assay="RNA-seq",
+                        ProcessingLevel="Level 3", FileFormats="tsv", Priority="High"))
     out = tmp_path / "o"
     script = SKILL / "scripts" / "summarize_landscape.py"
     subprocess.run([sys.executable, str(script), "--compact-from", str(reviewed), "--out-dir", str(out)],
@@ -821,9 +903,11 @@ def test_compact_from_reviewed_csv(tmp_path):
     with open(out / "landscape_summary_compact.csv", newline="") as fh:
         r = csv.reader(fh)
         assert next(r) == COMPACT_HEADER
-        row = next(r)
-    assert row[COMPACT_HEADER.index("RecommendedRepository")] == "IDR | x"
-    assert "IDR \\| x" in (out / "landscape_summary_compact.md").read_text()
+        rows = list(r)
+    # RNA-seq first (assay-type order) and its Level 1/2 scaffold rows, then imaging
+    assert [x[COMPACT_HEADER.index("AssayType")] for x in rows] == ["Transcriptomics (Bulk)"] * 3 + ["Imaging"]
+    assert rows[-1][COMPACT_HEADER.index("Formats")] == "tiff | x"
+    assert "tiff \\| x" in (out / "landscape_summary_compact.md").read_text()
     assert not (out / "landscape_summary.csv").exists()
     bad = tmp_path / "bad.csv"
     bad.write_text("DataType\nx\n")
@@ -841,3 +925,313 @@ def test_code_rows_prefer_code_format_not_assay_data_format(tmp_path):
                DatasetProcessingLevel="Auxiliary", DatasetFileFormat="Python script")]
     result, _ = sl.summarize(rows, {}, DEFAULT_RULES, formats=formats)
     assert result[0]["PreferredFileFormat"] == "Github Repo"
+
+
+# ---------------------------------------------------------------- assay split, code level, questioned formats
+def test_split_by_assay_breadth_is_per_assay():
+    rows = [_r(1, DatasetCategory="x", DatasetAssay="alpha", DatasetProcessingLevel="Level 3"),
+            _r(2, DatasetCategory="x", DatasetAssay="Beta", DatasetProcessingLevel="Level 3"),
+            _r(3, DatasetCategory="x", DatasetAssay="alpha", DatasetProcessingLevel="Level 3")]
+    s = _sum3(rows)
+    assert set(s) == {("x", "alpha", "Level 3"), ("x", "Beta", "Level 3")}
+    a, b = s["x", "alpha", "Level 3"], s["x", "Beta", "Level 3"]
+    assert (a["RowCount"], a["StudyCount"], b["RowCount"], b["StudyCount"]) == (2, 2, 1, 1)
+    # Priority follows each assay's own breadth (AssayStudyCount), not the category's
+    assert (a["AssayStudyCount"], b["AssayStudyCount"]) == (2, 1) and (a["Priority"], b["Priority"]) == ("High", "Low")
+    assert "Assays" not in a
+
+
+def test_code_model_rows_merge_at_code_model_level():
+    assert RULES["code_model_level"] == "Not Applicable"
+    rows = [_r(1, DatasetCategory="model", DatasetProcessingLevel="Auxiliary", DatasetFileFormat="Python script"),
+            _r(2, DatasetCategory="model", DatasetProcessingLevel="", DatasetFileFormat=""),
+            _r(3, DatasetCategory="model", DatasetProcessingLevel="Level 4", DatasetFileFormat="Github Repo"),
+            # model category but data format: not code; other categories' Auxiliary code rows are untouched
+            _r(4, DatasetCategory="model", DatasetProcessingLevel="Level 4", DatasetFileFormat="csv"),
+            _r(5, DatasetCategory="image", DatasetProcessingLevel="Auxiliary", DatasetFileFormat="Python script")]
+    s = _sum3(rows)
+    assert s["model", "Unknown", "Not Applicable"]["RowCount"] == 3
+    assert s["model", "Unknown", "Level 4"]["RowCount"] == 1
+    assert ("image", "Unknown", "Auxiliary") in s and ("model", "Unknown", "Auxiliary") not in s
+
+
+def test_questioned_tabular_formats_at_sequencing_level_1():
+    mk = lambda i, assay, fmt, lv="Level 1": _r(i, DatasetCategory="gene expression", DatasetAssay=assay,
+                                               DatasetProcessingLevel=lv, DatasetFileFormat=fmt)
+    rows = [mk(1, "RNA-seq", "fastq"), mk(2, "RNA-seq", "csv"), mk(3, "RNA-seq", "csv"), mk(4, "RNA-seq", "tsv"),
+            mk(5, "RNA-seq", "RData"), mk(6, "RNA-seq", "h5"),
+            mk(7, "RNA-seq", "csv", "Level 3"),  # only Level 1 is questioned
+            mk(8, "immunofluorescence", "csv")]  # not a sequencing assay
+    s = _sum3(rows)
+    d = s["gene expression", "RNA-seq", "Level 1"]
+    assert d["FileFormats"] == "fastq; h5; RData"
+    assert d["QuestionedFormats"] == "csv; tsv"
+    assert "Format(s) not plausible as raw sequencing data: csv (2 row(s)); excluded from FileFormats" in d["ReviewFlags"]
+    assert "tsv (1 row(s))" in d["ReviewFlags"]
+    assert s["gene expression", "RNA-seq", "Level 3"]["FileFormats"] == "csv"
+    img = s["gene expression", "immunofluorescence", "Level 1"]
+    assert img["FileFormats"] == "csv" and img["QuestionedFormats"] == ""
+
+
+def test_atac_level_3_preferred_is_bed():
+    for a in ("ATAC-seq", "single cell ATAC-seq", "single-nucleus ATAC-seq"):
+        assert sl.lookup_format(FORMATS, sl._key(a), "x", "Level 3") == ["bed"], a
+    assert sl.lookup_format(FORMATS, "", "chromatin activity", "Level 3") == ["bed"]
+    assert "bed" in json.loads((SKILL / "references" / "file_format_enum.json").read_text())["enum"]
+
+
+def test_assay_type_matching_categories_and_fallback():
+    m = lambda a, c="x": sl.match_assay_type(a, c, AT)
+    assert m("rna-seq") == "Transcriptomics (Bulk)"
+    assert m("Single-cell RNA-seq") == "Transcriptomics (Single-cell/Single-nucleus)"
+    assert m("in silico synthesis", "model") == "In silico model"
+    assert m("in silico synthesis", "Model") == "In silico model"
+    assert m("in silico synthesis", "image") == "In silico assay"
+    assert m("Weird assay") == "Weird assay"
+    names = [t["name"] for t in AT["types"]]
+    assert names.index("Spatial Chromatin profiling") == names.index("Chromatin profiling (Single-cell/Single-nucleus)") + 1
+    key = lambda n: sl.assay_type_sort_key(n, AT)
+    assert key("ELISA") < key("Luminex") < key("Aardvark assay") < key("Zebra assay")
+    # AssayType column in the summary
+    rows = [_r(1, DatasetCategory="model", DatasetAssay="in silico synthesis", DatasetProcessingLevel="Level 3",
+               DatasetFileFormat="csv"),
+            _r(2, DatasetCategory="x", DatasetAssay="in silico synthesis", DatasetProcessingLevel="Level 3"),
+            _r(3, DatasetCategory="x", DatasetAssay="Weird", DatasetProcessingLevel="Level 3")]
+    s = _sum3(rows)
+    assert s["model", "in silico synthesis", "Level 3"]["AssayType"] == "In silico model"
+    assert s["x", "in silico synthesis", "Level 3"]["AssayType"] == "In silico assay"
+    assert s["x", "Weird", "Level 3"]["AssayType"] == "Weird"
+
+
+def test_assay_types_json_shape():
+    d = json.loads((SKILL / "references" / "assay_types.json").read_text())
+    assert d["columns"][3] == "Level 2/Minimally processed or QC'd description and file format"
+    assert len(d["columns"]) == 8 and d["columns"][0] == "Assay Category" and d["columns"][7] == "Established repository name"
+    assert [t["name"] for t in d["assay_types"]][:3] == ["Transcriptomics (Bulk)",
+                                                          "Transcriptomics (Single-cell/Single-nucleus)", "Spatial Transcriptomics"]
+    assert d["assay_types"][-2]["categories"] == ["model"]
+
+
+# ---------------------------------------------------------------- assay type summary
+def _sheet(rows, **kw):
+    result, _ = sl.summarize(rows, {}, RULES, None, FORMATS)
+    sheet, ev = sl.build_assay_type_summary(result, RULES, AT)
+    return {r["Assay Type"]: r for r in sheet}, ev
+
+
+def test_assay_type_summary_confirmed_only_and_evidence():
+    mk = lambda i, fmt, lv, **k: _r(i, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel=lv,
+                                    DatasetFileFormat=fmt, **k)
+    filled = mk(5, "bam", "Level 2")
+    filled["_fills"] = [{"LandscapeId": "L5", "Field": "DatasetProcessingLevel", "Value": "Level 2", "Source": "old stated"}]
+    rows = [mk(1, "fastq", "Level 1"), mk(2, "csv", "Level 1"),  # csv questioned at sequencing Level 1
+            mk(3, "tsv", "Level 3"), mk(4, "tsv", "Level 3"), mk(6, "h5ad", "Level 3"),
+            mk(7, "mtx", ""),  # Unspecified level: never fills a level column
+            filled,  # level came from an old-manifest fill
+            mk(8, "xlsx", "Auxiliary"), mk(9, "tsv", "Auxiliary"),  # tsv already in Level 3: not repeated
+            mk(10, "json", "Not Applicable"),
+            mk(11, "pdf", "Metadata")]  # compact-excluded level
+    sheet, ev = _sheet(rows)
+    row = sheet["Transcriptomics (Bulk)"]
+    assert list(row) == AT["columns"]
+    c = AT["columns"]
+    assert row["Assay Category"] == "gene expression" and row["Assay Type"] == "Transcriptomics (Bulk)"
+    assert row[c[2]] == "fastq"            # csv questioned
+    assert row[c[3]] == ""                 # the only Level 2 value came from a fill
+    assert row[c[4]] == "tsv; h5ad"        # most studies first, then name
+    assert row[c[5]] == ""
+    assert row["Additional file types"] == "json; xlsx"
+    assert "mtx" not in "".join(row.values()) and "pdf" not in "".join(row.values())
+    assert row["Established repository name"] == ""
+    status = {(e["Column"], e["Value"]): e["Status"] for e in ev}
+    assert status[(c[2], "csv")] == "excluded: questioned format"
+    assert status[("(no level)", "mtx")] == "excluded: level unspecified"
+    assert status[(c[3], "bam")] == "excluded: level from old-manifest fill"
+    assert status[("(no level)", "pdf")] == "excluded: compact exclusion (level: Metadata)"
+    assert status[(c[2], "fastq")] == "confirmed"
+    tsv = next(e for e in ev if e["Value"] == "tsv" and e["Column"] == c[4])
+    assert tsv["StudyCount"] == 2 and tsv["LandscapeIds"] == "L3; L4"
+    assert list(ev[0]) == sl.EVIDENCE_COLUMNS
+
+
+def test_assay_type_summary_rows_order_and_empty_types():
+    rows = [_r(1, DatasetCategory="x", DatasetAssay="Zed", DatasetProcessingLevel="Level 1", DatasetFileFormat="a"),
+            _r(2, DatasetCategory="x", DatasetAssay="Aaa", DatasetProcessingLevel="Level 1", DatasetFileFormat="b"),
+            _r(3, DatasetCategory="clinical", DatasetAssay="Clin", DatasetProcessingLevel="Level 1", DatasetFileFormat="c")]
+    sheet, ev = _sheet(rows)
+    names = list(sheet)
+    assert names[:len(AT["types"])] == [t["name"] for t in AT["types"]]
+    assert names[len(AT["types"]):] == ["Aaa", "Zed"]  # unmatched sorted last; clinical is compact-excluded
+    blank = sheet["Spatial Chromatin profiling"]
+    assert all(v == "" for k, v in blank.items() if k != "Assay Type")
+    assert any(e["AssayType"] == "Clin" and e["Status"] == "excluded: compact exclusion (category: clinical)" for e in ev)
+
+
+def test_assay_type_summary_repository_from_text_only_and_pmid_ignored():
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetFileFormat="fastq", Comments="deposited as GSE12345 (see PMID: 31337)"),
+            _r(2, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetFileFormat="fastq", DatasetDescription="raw in SRP000001 and PRJEB1234, models syn1234567; GSE67890"),
+            _r(3, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetFileFormat="fastq", Comments="PMID:99999 only")]
+    sheet, ev = _sheet(rows)
+    assert sheet["Transcriptomics (Bulk)"]["Established repository name"] == \
+        "ENA (PRJEB1234); GEO (GSE12345, GSE67890); SRA (SRP000001); Synapse (syn1234567)"
+    assert "PMID" not in sheet["Transcriptomics (Bulk)"]["Established repository name"]
+    # nothing is projected from the repository rules for a type with no accession
+    assert sheet["Imaging"]["Established repository name"] == ""
+    assert sl.row_accessions(_mk(Comments="10.5281/zenodo.123456 and ST000123, PXD000001, MTBLS5, EGAS0001, phs000123.v1, GPL570")) == [
+        ("Zenodo", "zenodo.123456"), ("Metabolomics Workbench", "ST000123"), ("PRIDE", "PXD000001"),
+        ("MetaboLights", "MTBLS5"), ("EGA", "EGAS0001"), ("dbGaP", "phs000123.v1"), ("GEO", "GPL570")]
+
+
+def test_assay_type_outputs_written(tmp_path):
+    out = tmp_path / "o"
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetFileFormat="fastq", Comments="a | b")]
+    d = sl.summarize(rows, {}, RULES, None, FORMATS)[0]
+    sl.write_outputs(d, 1, out)
+    with open(out / "assay_type_summary.csv", newline="") as fh:
+        r = csv.reader(fh)
+        assert next(r) == AT["columns"]
+        assert len(list(r)) == len(AT["types"])
+    md = (out / "assay_type_summary.md").read_text().splitlines()
+    assert md[0] == "| " + " | ".join(AT["columns"]) + " |" and len(md) == 2 + len(AT["types"])
+    with open(out / "assay_type_evidence.csv", newline="") as fh:
+        assert next(csv.reader(fh)) == ["AssayType", "Column", "Value", "Status", "StudyCount", "LandscapeIds"]
+    info_cols = sl.package_readme.COMPACT_HEADERS
+    assert info_cols == sl.COMPACT_COLUMNS
+
+
+# ---------------------------------------------------------------- merge across categories by assay
+def test_categories_sharing_an_assay_merge_into_one_row():
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 3"),
+            _r(2, DatasetCategory="count matrix", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 3"),
+            _r(3, DatasetCategory="count matrix", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1"),
+            _r(4, DatasetCategory="gene expression", DatasetAssay="single-cell RNA-seq", DatasetProcessingLevel="Level 3"),
+            _r(5, DatasetCategory="count matrix", DatasetAssay="single-cell RNA-seq", DatasetProcessingLevel="Level 3")]
+    s = _sum3(rows)
+    assert set(s) == {("count matrix; gene expression", "RNA-seq", "Level 3"), ("count matrix", "RNA-seq", "Level 1"),
+                      ("count matrix; gene expression (single-cell)", "single-cell RNA-seq", "Level 3")}
+    m = s["count matrix; gene expression", "RNA-seq", "Level 3"]
+    assert m["RowCount"] == 2 and m["StudyCount"] == 2
+    assert m["AssayStudyCount"] == s["count matrix", "RNA-seq", "Level 1"]["AssayStudyCount"] == 3  # S1, S2, S3 at any level
+    assert m["Priority"] == s["count matrix", "RNA-seq", "Level 1"]["Priority"]
+    assert "CategoryStudyCount" not in m
+
+
+def test_merged_group_takes_max_sensitivity_with_mixed_flag():
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetSpecies="Homo sapiens", DatasetFileFormat="fastq"),
+            _r(2, DatasetCategory="count matrix", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 1",
+               DatasetSpecies="Mus musculus", DatasetFileFormat="fastq")]
+    d = _sum3(rows)["count matrix; gene expression", "RNA-seq", "Level 1"]
+    assert d["ProjectedSensitivity"] == "Controlled" and "Mixed sensitivity: 1 Controlled / 1 Open" in d["ReviewFlags"]
+
+
+def test_computational_and_unspecified_assays_keep_category_in_key():
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="in silico synthesis", DatasetProcessingLevel="Level 4"),
+            _r(2, DatasetCategory="count matrix", DatasetAssay="in silico synthesis", DatasetProcessingLevel="Level 4"),
+            _r(3, DatasetCategory="gene expression", DatasetAssay="RNA-seq", DatasetProcessingLevel="Level 4"),
+            _r(4, DatasetCategory="gene expression", DatasetAssay="", DatasetProcessingLevel="Level 4"),
+            _r(5, DatasetCategory="count matrix", DatasetAssay="Unknown", DatasetProcessingLevel="Level 4")]
+    s = _sum3(rows)
+    assert set(s) == {("gene expression", "in silico synthesis", "Level 4"), ("count matrix", "in silico synthesis", "Level 4"),
+                      ("gene expression", "RNA-seq", "Level 4"), ("gene expression", "Unknown", "Level 4"),
+                      ("count matrix", "Unknown", "Level 4")}
+    # AssayStudyCount for the exceptions counts that assay within that category only
+    assert s["gene expression", "in silico synthesis", "Level 4"]["AssayStudyCount"] == 1
+
+
+def test_spatial_rows_need_platform_confirmation():
+    rows = [_r(1, DatasetCategory="gene expression", DatasetAssay="spatial transcriptomics", DatasetProcessingLevel="Level 1")]
+    d = _sum3(rows, FORMATS)["gene expression (spatial)", "spatial transcriptomics", "Level 1"]
+    assert "Preferred format is platform-dependent; confirm platform" in d["NeedsInput"]
+    assert sl.lookup_format(FORMATS, "spatialtranscriptomics", "x", "Level 1") == ["fastq"]
+    assert sl.lookup_format(FORMATS, "spatialtranscriptomics", "x", "Level 2") == ["bam"]
+    assert sl.lookup_format(FORMATS, "spatialtranscriptomics", "x", "Level 3") == ["h5ad"]
+    assert all("platform" not in d["NeedsInput"] for d in _sum3([_r(1, DatasetAssay="RNA-seq")]).values())
+
+
+def test_format_families_in_rules_exist_in_enum():
+    enum = set(json.loads((SKILL / "references" / "file_format_enum.json").read_text())["enum"])
+    fam = RULES["format_families"]
+    assert {"tabular", "image", "hdf5", "sequence", "alignment", "code"} <= set(fam)
+    # "Jupyter notebook" is a code_model format that the file-format enum does not list; every other member must exist
+    assert all(f in enum for fs in fam.values() for f in fs if f != "Jupyter notebook")
+    assert sl.format_grounded({"csv"}, ["txt"], {sl._key(f): n for n, fs in fam.items() for f in fs})
+
+
+# ---------------------------------------------------------------- review fixes: subset grounding, ordering, questioned families, repositories
+def test_grounded_preferred_is_the_grounded_subset():
+    t = _fmt_table(("brightfield microscopy", "", "Level 3", "csv; ome-tiff"), ("", "text data", "Any", "csv; Github Repo"),
+                   ("", "electrophysiology", "Any", "csv; Github Repo"))
+    mk = lambda cat, assay, lv, fmt: _r(1, DatasetCategory=cat, DatasetAssay=assay, DatasetProcessingLevel=lv, DatasetFileFormat=fmt)
+    d = next(iter(_sum3([mk("image", "brightfield microscopy", "Level 3", "csv")], t).values()))
+    assert d["CanonicalFileFormat"] == "csv; ome-tiff" and d["PreferredFileFormat"] == "csv"
+    assert "Canonical format ome-tiff not grounded in declared formats (csv)" in d["ReviewFlags"]
+    rows = [mk("text data", "", "Auxiliary", "RData"), mk("text data", "", "Auxiliary", "txt")]
+    d = next(iter(_sum3(rows, t).values()))
+    assert d["PreferredFileFormat"] == "csv" and "Canonical format Github Repo not grounded" in d["ReviewFlags"]
+    d = next(iter(_sum3([mk("electrophysiology", "", "Not Applicable", "json")], t).values()))
+    assert d["PreferredFileFormat"] == "" and "csv; Github Repo not grounded" in d["ReviewFlags"]
+    # scaffold rows keep the full canonical value
+    full = [_row(AssayType="Transcriptomics (Bulk)", DataType="gene expression", Assay="RNA-seq", ProcessingLevel="Level 2")]
+    comp = _compact(full)[0]  # declared Level 2 row has a blank (ungrounded) value; the Level 1 scaffold keeps canonical
+    assert [c["PreferredFormat"] for c in comp] == ["fastq", ""]
+
+
+def test_ordering_levels_read_in_order_within_each_assay():
+    rows = [_r(1, DatasetCategory="drug screen", DatasetAssay="ELISA", DatasetProcessingLevel="Level 3"),
+            _r(2, DatasetCategory="immunoassay", DatasetAssay="ELISA", DatasetProcessingLevel="Level 3"),
+            _r(3, DatasetCategory="immunoassay", DatasetAssay="ELISA", DatasetProcessingLevel="Level 1"),
+            _r(4, DatasetCategory="x", DatasetAssay="ELISA", DatasetProcessingLevel="Level 2")]
+    result = sl.summarize(rows, {}, RULES)[0]
+    assert [d["ProcessingLevel"] for d in result] == ["Level 1", "Level 2", "Level 3"]
+    assert result[2]["DataType"] == "drug screen; immunoassay"
+    out = [{**{c: "" for c in sl.OUTPUT_COLUMNS}, **{k: d[k] for k in ("AssayType", "DataType", "Assay", "ProcessingLevel")}}
+           for d in result]
+    comp = sl.build_compact(out[::-1], RULES, FORMATS, FLR, AT)[0]
+    assert [c["ProcessingLevel"][:7] for c in comp] == ["Level 1", "Level 2", "Level 3"]
+
+
+def test_disallowed_format_families_are_questioned_at_any_level():
+    mk = lambda i, assay, cat, fmt, lv="Level 3": _r(i, DatasetCategory=cat, DatasetAssay=assay, DatasetProcessingLevel=lv,
+                                                    DatasetFileFormat=fmt)
+    rows = [mk(1, "immunohistochemistry", "image", "fastq"), mk(2, "immunohistochemistry", "image", "csv"),
+            mk(3, "immunohistochemistry", "image", "tif"),
+            mk(4, "mass spectrometry", "proteomics", "ome-tiff"), mk(5, "mass spectrometry", "proteomics", "mzML"),
+            mk(6, "RNA-seq", "gene expression", "png", "Level 2"), mk(7, "RNA-seq", "gene expression", "csv", "Level 3")]
+    s = _sum3(rows)
+    ihc = s["image", "immunohistochemistry", "Level 3"]
+    assert ihc["FileFormats"] == "csv; tif" and ihc["QuestionedFormats"] == "fastq"  # csv is not disallowed for imaging
+    assert "Format(s) not plausible for imaging assays: fastq (1 row(s)); excluded from FileFormats" in ihc["ReviewFlags"]
+    ms = s["proteomics", "mass spectrometry", "Level 3"]
+    assert ms["FileFormats"] == "mzML" and ms["QuestionedFormats"] == "ome-tiff"
+    assert s["gene expression", "RNA-seq", "Level 2"]["QuestionedFormats"] == "png"
+    assert s["gene expression", "RNA-seq", "Level 3"]["QuestionedFormats"] == ""
+    sheet, ev = _sheet(rows)
+    c = AT["columns"]
+    assert sheet["Imaging"][c[4]] == "csv; tif" and sheet["Mass spectrometry"][c[4]] == "mzML"
+    assert sheet["Transcriptomics (Bulk)"][c[3]] == ""
+    st = {(e["AssayType"], e["Value"]): e["Status"] for e in ev}
+    assert st[("Imaging", "fastq")] == "excluded: questioned format"
+    assert st[("Mass spectrometry", "ome-tiff")] == "excluded: questioned format"
+
+
+def test_repository_must_fit_the_assay_family_and_old_items_must_match_assay():
+    mk = lambda i, assay, text: _r(i, DatasetCategory="x", DatasetAssay=assay, DatasetProcessingLevel="Level 1",
+                                   DatasetFileFormat="tif", Comments=text)
+    rows = [mk(1, "histology", "see GSE111 and syn123 and zenodo.55"), mk(2, "mass spectrometry", "PXD000001 and GSE222"),
+            mk(3, "RNA-seq", "GSE333")]
+    sheet, ev = _sheet(rows)
+    assert sheet["Imaging"]["Established repository name"] == "Synapse (syn123); Zenodo (zenodo.55)"
+    assert sheet["Mass spectrometry"]["Established repository name"] == "PRIDE (PXD000001)"
+    assert sheet["Transcriptomics (Bulk)"]["Established repository name"] == "GEO (GSE333)"
+    bad = {(e["AssayType"], e["Value"]) for e in ev if e["Status"] == "excluded: repository does not hold this assay type"}
+    assert bad == {("Imaging", "GEO (GSE111)"), ("Mass spectrometry", "GEO (GSE222)")}
+    assert RULES["repository_assay_families"]["GEO"] == "sequencing_assays"
+    # old-manifest item text counts only for items of the same assay
+    item = lambda assay, text: {"Assay": assay, "Description": text, "Comments": ""}
+    row = _mk(DatasetAssay="RNA-seq", _link={"items": [item("RNA-seq", "GSE1"), item("histology", "GSE2"), item("", "GSE3")]})
+    assert sl.row_accessions(row) == [("GEO", "GSE1")]
