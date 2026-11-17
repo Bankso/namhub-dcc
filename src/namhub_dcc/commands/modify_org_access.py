@@ -28,7 +28,7 @@ def add_parser(subparsers):
         "--principal-id",
         required=True,
         type=int,
-        help="Synapse ID of the user or team to give access to.",
+        help="Numeric principal ID of the user or team to give access to.",
     )
     parser.add_argument(
         "--access-type",

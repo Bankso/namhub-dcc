@@ -77,7 +77,8 @@ namhub-dcc modify-org-access \
 ```
 
 The command adds access. It keeps the access types that the principal has
-already.
+already. The command is also available as a Python function,
+`namhub_dcc.modify_org_access.modify_org_access`.
 
 ---
 

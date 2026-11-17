@@ -1,8 +1,8 @@
 """Modify access to a Synapse JSON schema organization.
 
 Wraps ``SchemaOrganization.update_acl`` from ``synapseclient`` so that the
-access of one principal (user or team) to an organization can be set with a
-single function call.
+access of one principal (user or team) to an organization can be added with
+a single function call.
 """
 
 from synapseclient import Synapse
@@ -25,7 +25,8 @@ def modify_org_access(
     Arguments:
         org_name: Name of the JSON schema organization (for example,
             "my.org.name").
-        principal_id: Synapse ID of the user or team to give access to.
+        principal_id: Numeric principal ID of the user or team to give access
+            to.
         access_type: List of access types to give to the principal (for
             example, ["READ", "CREATE"]). See
             https://rest-docs.synapse.org/rest/org/sagebionetworks/repo/model/ACCESS_TYPE.html
@@ -44,7 +45,10 @@ def modify_org_access(
     for entry in acl["resourceAccess"]:
         if entry["principalId"] == principal_id:
             current = list(entry["accessType"])
-    combined = current + [a for a in access_type if a not in current]
+    combined = list(current)
+    for a in access_type:
+        if a not in combined:
+            combined.append(a)
 
     org.update_acl(
         principal_id=principal_id,

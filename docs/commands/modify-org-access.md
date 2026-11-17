@@ -24,7 +24,7 @@ namhub-dcc modify-org-access \
 | Option | Required | Default | Description |
 | --- | --- | --- | --- |
 | `--org-name` | Yes | — | Name of the JSON schema organization. |
-| `--principal-id` | Yes | — | Synapse ID of the user or team to give access to. |
+| `--principal-id` | Yes | — | Numeric principal ID of the user or team to give access to. |
 | `--access-type` | Yes | — | One or more access types to add, separated by spaces. For the permitted values, see [ACCESS_TYPE](https://rest-docs.synapse.org/rest/org/sagebionetworks/repo/model/ACCESS_TYPE.html). |
 | `--auth-token` | No | — | Synapse personal access token. If you do not give a token, the command uses `SYNAPSE_AUTH_TOKEN` or `~/.synapseConfig`. |
 
@@ -60,7 +60,7 @@ access = modify_org_access(
 | Parameter | Default | Description |
 | --- | --- | --- |
 | `org_name` | — | Name of the JSON schema organization. |
-| `principal_id` | — | Synapse ID of the user or team, as an integer or a string. |
+| `principal_id` | — | Numeric principal ID of the user or team, as an integer or a string. |
 | `access_type` | — | List of access types to add. |
 | `synapse_client` | `None` | A `Synapse` client that is logged in. If you do not give a client, the function uses the last `Synapse` instance that you created. |
 
