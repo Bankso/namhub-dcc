@@ -37,6 +37,7 @@ can generate a personal access token from your Synapse account settings page
 | --- | --- |
 | [`create-folders-from-recordset`](https://sagebio-ada.github.io/namhub-dcc/commands/create-folders-from-recordset.html) | Create one Synapse Folder per row of a Synapse RecordSet. |
 | [`create-landscape-task`](https://sagebio-ada.github.io/namhub-dcc/commands/create-landscape-task.html) | Create a NAMHub Landscape Task (RecordSet + CurationTask + Grid) in a project folder. |
+| [`modify-org-access`](https://sagebio-ada.github.io/namhub-dcc/commands/modify-org-access.html) | Add access for a user or team to a JSON schema organization. |
 
 Run `namhub-dcc --help` to list all commands, or `namhub-dcc <command> --help`
 for a command's options. See the docs linked above for full option tables,
@@ -65,6 +66,18 @@ namhub-dcc create-landscape-task \
 Also available as a plain Python function,
 `namhub_dcc.landscape.create_landscape_task`, for scripting (e.g. creating
 tasks across many folders in a loop).
+
+### `modify-org-access`
+
+```bash
+namhub-dcc modify-org-access \
+    --org-name my.org.name \
+    --principal-id 1234567 \
+    --access-type CREATE READ UPDATE
+```
+
+The command adds access. It keeps the access types that the principal has
+already.
 
 ---
 

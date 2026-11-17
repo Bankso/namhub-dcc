@@ -38,6 +38,8 @@ for a command's options.
   create one Synapse Folder per row of a Synapse RecordSet.
 - [`create-landscape-task`](commands/create-landscape-task.md) — create a
   NAMHub Landscape Task (RecordSet + CurationTask + Grid) in a project folder.
+- [`modify-org-access`](commands/modify-org-access.md) — add access
+  for a user or team to a JSON schema organization.
 
 ## Development
 
