@@ -34,6 +34,8 @@ export SYNAPSE_AUTH_TOKEN=<your-personal-access-token>
 Run `namhub-dcc --help` to list all commands, or `namhub-dcc <command> --help`
 for a command's options.
 
+- [`create-curation-tasks`](commands/create-curation-tasks.md) — create
+  folders and curation tasks (record or file) in a project from a CSV.
 - [`create-folders-from-recordset`](commands/create-folders-from-recordset.md) —
   create one Synapse Folder per row of a Synapse RecordSet.
 - [`create-landscape-task`](commands/create-landscape-task.md) — create a

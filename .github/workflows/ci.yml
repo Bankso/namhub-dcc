@@ -28,5 +28,6 @@ jobs:
         run: |
           namhub-dcc --version
           namhub-dcc --help
+          namhub-dcc create-curation-tasks --help
           namhub-dcc create-folders-from-recordset --help
           namhub-dcc create-landscape-task --help

@@ -35,12 +35,23 @@ can generate a personal access token from your Synapse account settings page
 
 | Command | Description |
 | --- | --- |
+| [`create-curation-tasks`](https://sagebio-ada.github.io/namhub-dcc/commands/create-curation-tasks.html) | Create folders and curation tasks (record or file) in a project from a CSV. |
 | [`create-folders-from-recordset`](https://sagebio-ada.github.io/namhub-dcc/commands/create-folders-from-recordset.html) | Create one Synapse Folder per row of a Synapse RecordSet. |
 | [`create-landscape-task`](https://sagebio-ada.github.io/namhub-dcc/commands/create-landscape-task.html) | Create a NAMHub Landscape Task (RecordSet + CurationTask + Grid) in a project folder. |
 
 Run `namhub-dcc --help` to list all commands, or `namhub-dcc <command> --help`
 for a command's options. See the docs linked above for full option tables,
 behavior notes, and the Python API.
+
+### `create-curation-tasks`
+
+```bash
+namhub-dcc create-curation-tasks \
+    --project-id syn78815407 \
+    --csv tasks.csv
+```
+
+Add `--dry-run` to check the CSV and schemas without creating anything.
 
 ### `create-folders-from-recordset`
 
