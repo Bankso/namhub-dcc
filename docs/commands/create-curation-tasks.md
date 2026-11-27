@@ -23,7 +23,7 @@ what the command will create. It creates nothing.
 | --- | --- | --- | --- |
 | `--project-id` | Yes | — | Synapse ID of the project that holds the curation tasks. |
 | `--csv` | Yes | — | Path to the input CSV. See [CSV format](#csv-format). |
-| `--parent-id` | No | the project | Synapse ID of the container for the folders. |
+| `--parent-id` | No | the project | Synapse ID of the container for the folders. It must be in `--project-id`. |
 | `--dry-run` | No | off | Check the input and show the plan. Create nothing. |
 | `--auth-token` | No | — | Synapse personal access token. Falls back to `SYNAPSE_AUTH_TOKEN` or `~/.synapseConfig`. |
 
@@ -79,3 +79,7 @@ The task instructions are the schema description, followed by the schema ID.
 - If a CurationTask with the same name is already in the project, the command
   skips that row. It does not change the existing task.
 - A file view shows no rows until the folder contains files.
+- Use a `--parent-id` that is in `--project-id`. With synapseclient 4.13 or
+  later, a task goes to the project of its folder. If the folder is in a
+  different project, the command does not find the task when you run it
+  again, and it creates a second one.

@@ -11,14 +11,16 @@ The folder is created under the parent if it does not exist.
 
 import argparse
 import csv
+import json
 import logging
 import sys
+from collections import Counter
 
 from synapseclient.extensions.curator import (
     create_file_based_metadata_task,
     create_record_based_metadata_task,
 )
-from synapseclient.models import CurationTask, Folder
+from synapseclient.models import Folder
 
 from namhub_dcc.auth import login
 
@@ -27,6 +29,7 @@ log = logging.getLogger(__name__)
 COMMAND_NAME = "create-curation-tasks"
 REQUIRED_COLUMNS = ("folder_name", "schema_uri", "record_or_file")
 TASK_TYPES = ("record", "file")
+DESCRIPTION_LIMIT = 1000  # maximum length of a Synapse entity description
 
 
 def add_parser(subparsers):
@@ -51,7 +54,8 @@ def add_parser(subparsers):
     parser.add_argument(
         "--parent-id",
         default=None,
-        help="Synapse ID of the container for the folders. Default: the project.",
+        help="Synapse ID of the container for the folders. It must be in the "
+        "project. Default: the project.",
     )
     parser.add_argument(
         "--auth-token",
@@ -100,18 +104,30 @@ def read_rows(path):
             if row["record_or_file"] == "record" and not row["upsert_keys"]:
                 raise ValueError(f"line {line}: a record row needs upsert_keys")
             try:
-                prefix = entity_prefix(row["schema_uri"])
+                row["prefix"] = row.get("task_name") or entity_prefix(row["schema_uri"])
             except ValueError as error:
                 raise ValueError(f"line {line}: {error}") from None
-            row["prefix"] = row.get("task_name") or prefix
             rows.append(row)
-    for column, label in (("folder_name", "folder_name"), ("prefix", "task name")):
-        values = [r[column] for r in rows]
-        repeated = sorted({v for v in values if values.count(v) > 1})
+    for column, label in (("folder_name", "folder_name"), ("prefix", "task name (set task_name on those rows)")):
+        repeated = sorted(v for v, n in Counter(r[column] for r in rows).items() if n > 1)
         if repeated:
-            hint = " (set task_name on those rows)" if column == "prefix" else ""
-            raise ValueError(f"{label} is repeated: {', '.join(repeated)}{hint}")
+            raise ValueError(f"repeated {label}: {', '.join(repeated)}")
     return rows
+
+
+def existing_task_names(syn, project_id):
+    """Return the names of the curation tasks in the project.
+
+    This reads the REST response directly, because ``CurationTask.list`` in
+    synapseclient 4.13 raises an error on tasks made before ``taskProperties``.
+    """
+    names, body = set(), {"projectId": project_id}
+    while True:
+        response = syn.restPOST("/curation/task/list", body=json.dumps(body))
+        names.update(task["dataType"] for task in response.get("page", []))
+        if not response.get("nextPageToken"):
+            return names
+        body["nextPageToken"] = response["nextPageToken"]
 
 
 def run(args):
@@ -133,7 +149,7 @@ def run(args):
         descriptions[uri] = schema.get("description") or uri
 
     folders = {c["name"]: c["id"] for c in syn.getChildren(parent_id, includeTypes=["folder"])}
-    tasks = {t.data_type for t in CurationTask.list(project_id=args.project_id, synapse_client=syn)}
+    tasks = existing_task_names(syn, args.project_id)
 
     for row in rows:
         uri, kind = row["schema_uri"], row["record_or_file"]
@@ -158,14 +174,14 @@ def run(args):
                 project_id=args.project_id,
                 folder_id=folder_id,
                 record_set_name=f"{row['prefix']}_RecordSet",
-                record_set_description=descriptions[uri][:1000],
+                record_set_description=descriptions[uri][:DESCRIPTION_LIMIT],
                 curation_task_name=task_name,
                 upsert_keys=row["upsert_keys"],
                 instructions=instructions,
                 schema_uri=uri,
                 bind_schema_to_record_set=True,
             )
-            record_set, task = result[0], result[1]
+            record_set, task, *_ = result
             log.info(
                 "%s: folder=%s recordset=%s task=%s keys=%s",
                 row["folder_name"], folder_id, record_set.id, task.task_id, row["upsert_keys"],
